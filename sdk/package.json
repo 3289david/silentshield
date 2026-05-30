@@ -1,7 +1,7 @@
 ﻿{
   "name": "silentshield",
-  "version": "2.2.0",
-  "description": "Invisible bot protection ??no CAPTCHAs, no limits, no cost. Open source.",
+  "version": "2.2.1",
+  "description": "Invisible bot protection — no CAPTCHAs, no limits, no cost. Open source.",
   "main": "dist/silentshield.js",
   "module": "dist/silentshield.esm.js",
   "browser": "dist/silentshield.min.js",
