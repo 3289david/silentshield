@@ -127,44 +127,6 @@
     .x { color: var(--red); }
     .partial { color: var(--yellow); font-size: 0.8rem; }
 
-    /* DOCS */
-    .docs-section { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .docs-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; min-height: 600px; }
-    .docs-nav { border-right: 1px solid var(--border); padding: 32px 0; position: sticky; top: 80px; height: fit-content; }
-    .docs-nav a { display: block; padding: 7px 20px; font-size: 0.83rem; color: var(--text3); text-decoration: none; border-left: 2px solid transparent; transition: all 0.15s; }
-    .docs-nav a:hover { color: var(--text); border-color: var(--border2); }
-    .docs-nav a.active { color: #a78bfa; border-color: var(--purple); background: rgba(124,58,237,0.06); }
-    .docs-nav .nav-group { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); padding: 14px 20px 6px; }
-    .docs-content { padding: 40px 48px; }
-    .doc-section { display: none; }
-    .doc-section.active { display: block; }
-    .doc-section h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 12px; }
-    .doc-section h4 { font-size: 1rem; font-weight: 700; margin: 24px 0 8px; color: var(--text); }
-    .doc-section p { font-size: 0.9rem; color: var(--text2); line-height: 1.75; margin-bottom: 14px; }
-    .doc-section ul { list-style: none; padding: 0; }
-    .doc-section ul li { font-size: 0.88rem; color: var(--text2); padding: 4px 0 4px 18px; position: relative; }
-    .doc-section ul li::before { content: '✓'; position: absolute; left: 0; color: var(--purple); font-size: 0.75rem; }
-    .inline-code { font-family: var(--mono); font-size: 0.78rem; background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 4px; color: #a78bfa; }
-    .param-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.83rem; }
-    .param-table th { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); }
-    .param-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
-    .param-table td:first-child { font-family: var(--mono); color: #a78bfa; font-size: 0.78rem; }
-    .param-table td:nth-child(2) { color: var(--yellow); font-family: var(--mono); font-size: 0.78rem; }
-    .param-table td:nth-child(3) { color: var(--text2); }
-    .response-block { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin: 12px 0; font-family: var(--mono); font-size: 0.8rem; line-height: 1.7; color: var(--text2); }
-    .method-badge { display: inline-block; padding: 3px 10px; border-radius: 5px; font-size: 0.7rem; font-weight: 700; margin-right: 8px; font-family: var(--mono); }
-    .method-post { background: rgba(16,185,129,0.2); color: var(--green); }
-    .method-get { background: rgba(59,130,246,0.2); color: var(--blue); }
-    .endpoint-path { font-family: var(--mono); font-size: 0.9rem; color: #fff; }
-    .alert { border-radius: 8px; padding: 12px 16px; font-size: 0.85rem; margin: 14px 0; }
-    .alert-info { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: #93c5fd; }
-    .alert-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
-    .alert-warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #fde68a; }
-    .score-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin: 12px 0; }
-    .score-table th { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); }
-    .score-table td { padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text2); }
-    .score-table td:first-child { color: var(--text); font-weight: 600; }
-
     /* SELF HOST */
     .selfhost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
     .steps { display: flex; flex-direction: column; gap: 18px; margin-top: 24px; }
@@ -202,11 +164,6 @@
 
     @media (max-width: 900px) {
       .two-col, .selfhost-grid { grid-template-columns: 1fr; }
-      .docs-layout { grid-template-columns: 1fr; }
-      .docs-nav { position: static; display: flex; flex-wrap: wrap; padding: 16px; gap: 4px; border-right: none; border-bottom: 1px solid var(--border); }
-      .docs-nav a { border-left: none; border-radius: 6px; border: 1px solid var(--border); padding: 5px 12px; }
-      .docs-nav .nav-group { display: none; }
-      .docs-content { padding: 24px 20px; }
     }
     @media (max-width: 680px) {
       .nav-links { display: none; }
@@ -223,7 +180,7 @@
     <div class="nav-links">
       <a href="#layers">Detection</a>
       <a href="#compare">Compare</a>
-      <a href="#docs">Docs</a>
+      <a href="/test">Live Test</a>
       <a href="#self-host">Self-host</a>
       <a href="#get-keys">Get Keys</a>
       <a href="https://github.com/3289david/silentshield" target="_blank">GitHub</a>
@@ -244,7 +201,7 @@
     <h1>Stop bots.<br><span class="grad">No CAPTCHAs. No Keys.</span><br>No Cost.</h1>
     <p class="hero-sub">SilentShield watches 12 invisible detection layers — mouse entropy, biometrics, fingerprinting, font enumeration, proof-of-work — and blocks bots before they touch your backend.</p>
     <div class="hero-ctas">
-      <a href="#docs" class="btn btn-primary btn-lg">Read the Docs →</a>
+      <a href="/test" class="btn btn-primary btn-lg">Try Live Demo →</a>
       <a href="/dashboard" class="btn btn-outline btn-lg">Dashboard →</a>
       <a href="https://github.com/3289david/silentshield" target="_blank" class="btn btn-ghost btn-lg">View Source</a>
     </div>
@@ -444,407 +401,6 @@
 </section>
 
 <!-- DOCS -->
-<section class="docs-section" id="docs">
-  <div class="container" style="max-width:1200px">
-    <div class="section-center" style="margin-bottom:40px">
-      <div class="section-label">Documentation</div>
-      <h2>Complete Reference</h2>
-      <p class="section-sub">Everything you need to integrate, configure, and self-host SilentShield.</p>
-    </div>
-
-    <div class="docs-layout">
-      <div class="docs-nav" id="docs-nav">
-        <div class="nav-group">Getting Started</div>
-        <a href="#" class="active" onclick="showDoc('installation',this)">Installation</a>
-        <a href="#" onclick="showDoc('quickstart',this)">Quick Start</a>
-        <a href="#" onclick="showDoc('sdk-config',this)">SDK Config</a>
-        <div class="nav-group">API Reference</div>
-        <a href="#" onclick="showDoc('api-signal',this)">/api/signal</a>
-        <a href="#" onclick="showDoc('api-verify',this)">/api/verify</a>
-        <a href="#" onclick="showDoc('api-register',this)">/api/register</a>
-        <a href="#" onclick="showDoc('api-analytics',this)">/api/analytics</a>
-        <div class="nav-group">Detection</div>
-        <a href="#" onclick="showDoc('scoring',this)">Score System</a>
-        <a href="#" onclick="showDoc('signals',this)">Signal Reference</a>
-        <div class="nav-group">Deployment</div>
-        <a href="#" onclick="showDoc('self-hosting',this)">Self-hosting</a>
-        <a href="#" onclick="showDoc('env-vars',this)">Env Variables</a>
-        <a href="#" onclick="showDoc('frameworks',this)">Frameworks</a>
-      </div>
-
-      <div class="docs-content">
-
-        <!-- INSTALLATION -->
-        <div class="doc-section active" id="doc-installation">
-          <h3>Installation</h3>
-          <p>SilentShield has two parts: a JavaScript SDK that runs in the browser, and a server that verifies tokens. You can use the hosted server at <span class="inline-code">sh.krl.kr</span> or self-host.</p>
-
-          <h4>CDN (recommended — no build step)</h4>
-          <div class="code-card"><div class="code-bar"><span>HTML</span></div>
-<pre><span class="c-b">&lt;script</span>
-  <span class="c-g">src</span><span class="c-d">=</span><span class="c-y">"https://cdn.jsdelivr.net/npm/silentshield@latest/dist/silentshield.min.js"</span>
-<span class="c-b">&gt;&lt;/script&gt;</span></pre></div>
-          <p>Served globally via jsDelivr CDN. Cached with immutable headers. ~13KB minified, zero external dependencies.</p>
-
-          <h4>npm</h4>
-          <div class="code-card"><div class="code-bar"><span>Terminal</span></div>
-<pre>npm install silentshield</pre></div>
-          <div class="code-card"><div class="code-bar"><span>ES Module</span></div>
-<pre><span class="c-p">import</span> SilentShield <span class="c-p">from</span> <span class="c-y">'silentshield'</span>;</pre></div>
-
-          <div class="alert alert-success">✅ No API key needed. Works out of the box without any registration.</div>
-        </div>
-
-        <!-- QUICK START -->
-        <div class="doc-section" id="doc-quickstart">
-          <h3>Quick Start</h3>
-          <p>The fastest way to add SilentShield to any HTML form.</p>
-
-          <h4>Step 1 — Add the script</h4>
-          <div class="code-card"><div class="code-bar"><span>HTML head</span></div>
-<pre><span class="c-b">&lt;script</span> <span class="c-g">src</span><span class="c-d">=</span><span class="c-y">"https://cdn.jsdelivr.net/npm/silentshield@latest/dist/silentshield.min.js"</span><span class="c-b">&gt;&lt;/script&gt;</span></pre></div>
-
-          <h4>Step 2 — Tag your form</h4>
-          <div class="code-card"><div class="code-bar"><span>HTML</span></div>
-<pre><span class="c-b">&lt;form</span> <span class="c-g">data-silentshield</span> <span class="c-g">action</span><span class="c-d">=</span><span class="c-y">"/submit"</span> <span class="c-g">method</span><span class="c-d">=</span><span class="c-y">"POST"</span><span class="c-b">&gt;</span>
-  <span class="c-b">&lt;input</span> <span class="c-g">type</span><span class="c-d">=</span><span class="c-y">"text"</span> <span class="c-g">name</span><span class="c-d">=</span><span class="c-y">"name"</span> <span class="c-b">/&gt;</span>
-  <span class="c-b">&lt;input</span> <span class="c-g">type</span><span class="c-d">=</span><span class="c-y">"email"</span> <span class="c-g">name</span><span class="c-d">=</span><span class="c-y">"email"</span> <span class="c-b">/&gt;</span>
-  <span class="c-b">&lt;button</span> <span class="c-g">type</span><span class="c-d">=</span><span class="c-y">"submit"</span><span class="c-b">&gt;</span>Submit<span class="c-b">&lt;/button&gt;</span>
-<span class="c-b">&lt;/form&gt;</span>
-
-<span class="c-d">&lt;!-- SilentShield auto-inits all [data-silentshield] forms --&gt;</span></pre></div>
-
-          <h4>Step 3 — Verify on your server</h4>
-          <p>On form submit, SilentShield injects a hidden <span class="inline-code">_ss_token</span> field. POST it to <span class="inline-code">/api/verify</span>:</p>
-          <div class="code-card"><div class="code-bar"><span>Node.js</span></div>
-<pre><span class="c-p">const</span> r <span class="c-d">=</span> <span class="c-p">await</span> <span class="c-g">fetch</span>(<span class="c-y">'https://sh.krl.kr/api/verify'</span>, {
-  method: <span class="c-y">'POST'</span>,
-  headers: { <span class="c-y">'Content-Type'</span>: <span class="c-y">'application/json'</span> },
-  body: JSON.<span class="c-g">stringify</span>({ token: req.body._ss_token })
-});
-<span class="c-p">const</span> { valid, score, verdict } <span class="c-d">=</span> <span class="c-p">await</span> r.<span class="c-g">json</span>();
-<span class="c-p">if</span> (!valid) <span class="c-p">return</span> res.<span class="c-g">status</span>(<span class="c-r">403</span>).<span class="c-g">send</span>(<span class="c-y">'Bot'</span>);</pre></div>
-          <div class="alert alert-info">Tokens are one-time use. Calling /api/verify twice on the same token returns <span class="inline-code">valid: false</span>.</div>
-        </div>
-
-        <!-- SDK CONFIG -->
-        <div class="doc-section" id="doc-sdk-config">
-          <h3>SDK Configuration</h3>
-          <p>All options are optional. SilentShield works with zero configuration.</p>
-          <table class="param-table">
-            <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
-            <tbody>
-              <tr><td>apiUrl</td><td>'https://sh.krl.kr'</td><td>API endpoint. Set to your self-hosted URL to use your own server.</td></tr>
-              <tr><td>publicKey</td><td>null</td><td>Optional site identifier for analytics grouping. No security value —purely for dashboard.</td></tr>
-              <tr><td>threshold</td><td>45</td><td>Score below which to trigger bot handling. Range 0–100. Recommended: 45 (balanced), 60 (strict).</td></tr>
-              <tr><td>fakeSuccess</td><td>true</td><td>Show fake "Sent successfully!" to blocked bots. Silently discards their submission.</td></tr>
-              <tr><td>onBot</td><td>null</td><td>Callback function called when a bot is detected. Receives <span class="inline-code">{score, verdict}</span>.</td></tr>
-            </tbody>
-          </table>
-          <div class="code-card"><div class="code-bar"><span>Full example</span></div>
-<pre><span class="c-p">const</span> shield <span class="c-d">=</span> <span class="c-p">new</span> <span class="c-g">SilentShield</span>({
-  apiUrl: <span class="c-y">'https://sh.krl.kr'</span>,
-  threshold: <span class="c-r">45</span>,
-  fakeSuccess: <span class="c-p">true</span>,
-  onBot: (r) <span class="c-d">=&gt;</span> console.<span class="c-g">log</span>(<span class="c-y">'Blocked bot, score:'</span>, r.score)
-});
-shield.<span class="c-g">protect</span>(<span class="c-y">'#contact-form'</span>);
-
-<span class="c-d">// Or use the static auto-init (protects all [data-silentshield] forms):</span>
-SilentShield.<span class="c-g">init</span>({ apiUrl: <span class="c-y">'https://sh.krl.kr'</span> });</pre></div>
-        </div>
-
-        <!-- API /signal -->
-        <div class="doc-section" id="doc-api-signal">
-          <h3>/api/signal</h3>
-          <p><span class="method-badge method-post">POST</span><span class="endpoint-path">/api/signal</span></p>
-          <p>Called automatically by the JS SDK when a form is submitted. Accepts all collected behavioral signals and returns a one-time token.</p>
-          <div class="alert alert-info">You never need to call this endpoint directly — the SDK handles it automatically.</div>
-          <h4>Key Request Fields</h4>
-          <table class="param-table">
-            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
-            <tbody>
-              <tr><td>mouseEvents</td><td>number</td><td>Number of mousemove events recorded</td></tr>
-              <tr><td>mouseEntropy</td><td>number</td><td>Angle-change variance of mouse path</td></tr>
-              <tr><td>mouseSpeedVariance</td><td>number</td><td>Speed variance along mouse path</td></tr>
-              <tr><td>keystrokeIntervals</td><td>number[]</td><td>Array of inter-keystroke delays (ms)</td></tr>
-              <tr><td>formFillMs</td><td>number</td><td>Total form fill duration</td></tr>
-              <tr><td>powChallenge</td><td>string</td><td>PoW challenge string</td></tr>
-              <tr><td>powNonce</td><td>number</td><td>Solved PoW nonce</td></tr>
-              <tr><td>powHash</td><td>string</td><td>Resulting SHA-256 hash</td></tr>
-              <tr><td>canvasFingerprint</td><td>string</td><td>Last 80 bytes of canvas PNG (base64)</td></tr>
-              <tr><td>webglRenderer</td><td>string</td><td>GPU renderer string</td></tr>
-              <tr><td>fontCount</td><td>number</td><td>Number of detected installed fonts</td></tr>
-              <tr><td>speechVoiceCount</td><td>number</td><td>Number of speech synthesis voices</td></tr>
-              <tr><td>siteId</td><td>string|null</td><td>Optional public key for analytics</td></tr>
-            </tbody>
-          </table>
-          <h4>Response</h4>
-          <div class="response-block"><span class="c-d">// 200 OK</span>
-{
-  <span class="c-g">"token"</span>: <span class="c-y">"550e8400-e29b-41d4-a716-446655440000"</span>,
-  <span class="c-g">"score"</span>: <span class="c-r">91</span>,
-  <span class="c-g">"verdict"</span>: <span class="c-y">"human"</span>  <span class="c-d">// "human" | "suspicious" | "bot"</span>
-}</div>
-        </div>
-
-        <!-- API /verify -->
-        <div class="doc-section" id="doc-api-verify">
-          <h3>/api/verify</h3>
-          <p><span class="method-badge method-post">POST</span><span class="endpoint-path">/api/verify</span></p>
-          <p>Your backend calls this to validate a token before processing a form submission.</p>
-          <h4>Request</h4>
-          <div class="response-block">{
-  <span class="c-g">"token"</span>: <span class="c-y">"550e8400-e29b-41d4-a716-446655440000"</span>
-}</div>
-          <h4>Response</h4>
-          <div class="response-block"><span class="c-d">// Human</span>
-{
-  <span class="c-g">"valid"</span>: <span class="c-p">true</span>,
-  <span class="c-g">"score"</span>: <span class="c-r">91</span>,
-  <span class="c-g">"verdict"</span>: <span class="c-y">"human"</span>,
-  <span class="c-g">"timestamp"</span>: <span class="c-y">"2025-01-01T12:00:00.000Z"</span>
-}
-
-<span class="c-d">// Bot or invalid token</span>
-{
-  <span class="c-g">"valid"</span>: <span class="c-p">false</span>,
-  <span class="c-g">"score"</span>: <span class="c-r">22</span>,
-  <span class="c-g">"verdict"</span>: <span class="c-y">"bot"</span>
-}
-
-<span class="c-d">// Already used</span>
-{ <span class="c-g">"valid"</span>: <span class="c-p">false</span>, <span class="c-g">"error"</span>: <span class="c-y">"Token already used"</span> }</div>
-          <div class="alert alert-warn">Tokens expire after first use. Store them only until verified — never reuse.</div>
-          <h4>PHP Example</h4>
-          <div class="code-card"><div class="code-bar"><span>PHP</span></div>
-<pre>$data = json_decode(file_get_contents(<span class="c-y">'https://sh.krl.kr/api/verify'</span>, false,
-  stream_context_create([<span class="c-y">'http'</span> => [
-    <span class="c-y">'method'</span>  => <span class="c-y">'POST'</span>,
-    <span class="c-y">'header'</span>  => <span class="c-y">'Content-Type: application/json'</span>,
-    <span class="c-y">'content'</span> => json_encode([<span class="c-y">'token'</span> => $_POST[<span class="c-y">'_ss_token'</span>]])
-  ]])
-), true);
-if (!$data[<span class="c-y">'valid'</span>]) { http_response_code(403); exit; }</pre></div>
-        </div>
-
-        <!-- API /register -->
-        <div class="doc-section" id="doc-api-register">
-          <h3>/api/register</h3>
-          <p><span class="method-badge method-post">POST</span><span class="endpoint-path">/api/register</span></p>
-          <p>Register your domain to get analytics keys. Completely optional —SilentShield works without any registration.</p>
-          <h4>Request</h4>
-          <div class="response-block">{
-  <span class="c-g">"domain"</span>: <span class="c-y">"mysite.com"</span>,
-  <span class="c-g">"name"</span>: <span class="c-y">"My Project"</span>  <span class="c-d">// optional</span>
-}</div>
-          <h4>Response</h4>
-          <div class="response-block">{
-  <span class="c-g">"message"</span>: <span class="c-y">"Site registered — dashboard analytics enabled"</span>,
-  <span class="c-g">"public_key"</span>: <span class="c-y">"pk_abc123..."</span>,
-  <span class="c-g">"secret_key"</span>: <span class="c-y">"sk_xyz789..."</span>
-}</div>
-          <div class="alert alert-info">The public key is for analytics grouping only. The secret key unlocks <span class="inline-code">/api/analytics/*</span> and the dashboard.</div>
-        </div>
-
-        <!-- API /analytics -->
-        <div class="doc-section" id="doc-api-analytics">
-          <h3>/api/analytics</h3>
-          <p>All analytics endpoints require header: <span class="inline-code">x-secret-key: sk_...</span></p>
-          <h4>GET /api/analytics/overview</h4>
-          <p>Returns 7-day traffic stats, bot rate, detection breakdown by layer.</p>
-          <div class="response-block">{
-  <span class="c-g">"total"</span>: <span class="c-r">15420</span>,
-  <span class="c-g">"human"</span>: <span class="c-r">14100</span>,
-  <span class="c-g">"suspicious"</span>: <span class="c-r">820</span>,
-  <span class="c-g">"bot"</span>: <span class="c-r">500</span>,
-  <span class="c-g">"botRate"</span>: <span class="c-y">"3.24%"</span>,
-  <span class="c-g">"avgScore"</span>: <span class="c-r">84.2</span>,
-  <span class="c-g">"daily"</span>: [...]
-}</div>
-          <h4>GET /api/analytics/patterns</h4>
-          <p>Returns learned bot patterns with confidence scores.</p>
-          <h4>GET /api/analytics/recent</h4>
-          <p>Returns the 50 most recent submissions with scores and verdicts.</p>
-          <h4>GET /api/analytics/admin</h4>
-          <p>Returns all sites, system stats. Requires <span class="inline-code">x-admin-secret</span> header matching <span class="inline-code">ADMIN_SECRET</span> env var.</p>
-        </div>
-
-        <!-- SCORING -->
-        <div class="doc-section" id="doc-scoring">
-          <h3>Score System</h3>
-          <p>Every submission gets a score from 0 to 100. Score starts at 50 and is adjusted by each detection layer.</p>
-          <table class="score-table">
-            <thead><tr><th>Score Range</th><th>Verdict</th><th>Meaning</th></tr></thead>
-            <tbody>
-              <tr><td>70–100</td><td style="color:var(--green)">human</td><td>Strong signals of real human browser. Process normally.</td></tr>
-              <tr><td>45–69</td><td style="color:var(--yellow)">suspicious</td><td>Some bot-like signals but not conclusive. You can require additional verification or silently log for review.</td></tr>
-              <tr><td>0–44</td><td style="color:var(--red)">bot</td><td>Strong bot indicators. Reject, show fake success, or challenge.</td></tr>
-            </tbody>
-          </table>
-          <h4>Layer Weights (approximate)</h4>
-          <table class="score-table">
-            <thead><tr><th>Layer</th><th>Max Positive</th><th>Max Negative</th></tr></thead>
-            <tbody>
-              <tr><td>Proof of Work</td><td>+15</td><td>-35</td></tr>
-              <tr><td>Mouse path entropy</td><td>+12</td><td>-18</td></tr>
-              <tr><td>Keyboard biometrics + fill time</td><td>+18</td><td>-55</td></tr>
-              <tr><td>Canvas fingerprint</td><td>+10</td><td>-25</td></tr>
-              <tr><td>WebGL renderer</td><td>+12</td><td>-35</td></tr>
-              <tr><td>Audio fingerprint</td><td>+8</td><td>-8</td></tr>
-              <tr><td>Font enumeration</td><td>+10</td><td>-8</td></tr>
-              <tr><td>Speech voices</td><td>+10</td><td>-5</td></tr>
-              <tr><td>Environment flags</td><td>+45</td><td>-70</td></tr>
-              <tr><td>Honeypot</td><td>🍯</td><td>-100</td></tr>
-              <tr><td>Spam content</td><td>🚫</td><td>-80</td></tr>
-              <tr><td>User agent</td><td>+10</td><td>-50</td></tr>
-            </tbody>
-          </table>
-          <p>The final score is clamped to 0–100. <span class="inline-code">navigator.webdriver = true</span> is an immediate -70 (nearly always bot verdict).</p>
-        </div>
-
-        <!-- SIGNALS -->
-        <div class="doc-section" id="doc-signals">
-          <h3>Signal Reference</h3>
-          <p>Complete list of signals collected by the SDK v2.1:</p>
-          <h4>Interaction Signals</h4>
-          <table class="param-table">
-            <thead><tr><th>Signal</th><th>Type</th><th>Description</th></tr></thead>
-            <tbody>
-              <tr><td>mouseEvents</td><td>number</td><td>Total mousemove events (capped at 300 samples)</td></tr>
-              <tr><td>scrollEvents</td><td>number</td><td>Scroll events</td></tr>
-              <tr><td>clickEvents</td><td>number</td><td>Click events</td></tr>
-              <tr><td>dblClickEvents</td><td>number</td><td>Double-click events</td></tr>
-              <tr><td>contextMenuEvents</td><td>number</td><td>Right-click (contextmenu) events</td></tr>
-              <tr><td>mouseDownEvents</td><td>number</td><td>Mousedown events</td></tr>
-              <tr><td>mouseEntropy</td><td>number</td><td>Angle-change variance of mouse path</td></tr>
-              <tr><td>mouseSpeedVariance</td><td>number</td><td>Speed variance (px/ms) along path</td></tr>
-              <tr><td>keystrokeIntervals</td><td>number[]</td><td>Last 120 inter-keystroke delays</td></tr>
-              <tr><td>backspaceCount</td><td>number</td><td>Backspace key presses</td></tr>
-              <tr><td>pasteCount</td><td>number</td><td>Paste events</td></tr>
-              <tr><td>formFillMs</td><td>number</td><td>Duration from first keystroke to submit</td></tr>
-            </tbody>
-          </table>
-          <h4>Environment Signals</h4>
-          <table class="param-table">
-            <thead><tr><th>Signal</th><th>Type</th><th>Description</th></tr></thead>
-            <tbody>
-              <tr><td>webdriver</td><td>boolean</td><td>navigator.webdriver (true = definitive bot)</td></tr>
-              <tr><td>pluginCount</td><td>number</td><td>navigator.plugins.length</td></tr>
-              <tr><td>hardwareConcurrency</td><td>number</td><td>CPU core count</td></tr>
-              <tr><td>deviceMemory</td><td>number</td><td>RAM in GB (rounded)</td></tr>
-              <tr><td>hasChrome</td><td>boolean</td><td>window.chrome defined</td></tr>
-              <tr><td>fontCount</td><td>number</td><td>Installed fonts detected via canvas</td></tr>
-              <tr><td>speechVoiceCount</td><td>number</td><td>speechSynthesis.getVoices().length</td></tr>
-              <tr><td>hasLocalStorage</td><td>boolean</td><td>localStorage available and writable</td></tr>
-              <tr><td>hasIndexedDB</td><td>boolean</td><td>IndexedDB available</td></tr>
-              <tr><td>hasWebWorker</td><td>boolean</td><td>Web Workers available</td></tr>
-              <tr><td>hasBattery</td><td>boolean</td><td>navigator.getBattery available</td></tr>
-              <tr><td>hasWebBluetooth</td><td>boolean</td><td>navigator.bluetooth available</td></tr>
-              <tr><td>pointerFine</td><td>boolean</td><td>(pointer: fine) CSS media match</td></tr>
-              <tr><td>hoverCapable</td><td>boolean</td><td>(hover: hover) CSS media match</td></tr>
-              <tr><td>perfPrecision</td><td>number</td><td>Minimum performance.now() increment</td></tr>
-              <tr><td>innerWidth / innerHeight</td><td>number</td><td>Window inner dimensions</td></tr>
-              <tr><td>screenWidth / screenHeight</td><td>number</td><td>Screen dimensions</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- SELF-HOSTING -->
-        <div class="doc-section" id="doc-self-hosting">
-          <h3>Self-Hosting</h3>
-          <p>SilentShield is designed to be self-hosted. One command on any Ubuntu 22.04 VPS.</p>
-          <div class="code-card"><div class="code-bar"><span>bash — Ubuntu 22.04</span></div>
-<pre>curl -fsSL \
-  https://raw.githubusercontent.com/3289david/silentshield/main/deploy.sh \
-  | bash</pre></div>
-          <p>This installs Node.js 20, PM2, clones the repo, builds the SDK, and starts the server.</p>
-          <h4>Add SSL (nginx)</h4>
-          <div class="code-card"><div class="code-bar"><span>bash</span></div>
-<pre>apt install nginx certbot python3-certbot-nginx
-certbot --nginx -d your-domain.com
-cp nginx.conf /etc/nginx/sites-available/silentshield
-ln -s /etc/nginx/sites-available/silentshield /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx</pre></div>
-          <h4>Point your SDK at your server</h4>
-          <div class="code-card"><div class="code-bar"><span>JavaScript</span></div>
-<pre><span class="c-p">new</span> <span class="c-g">SilentShield</span>({
-  apiUrl: <span class="c-y">'https://your-domain.com'</span>
-}).<span class="c-g">protect</span>(<span class="c-y">'#my-form'</span>);</pre></div>
-          <div class="alert alert-success">✅ Requirements: Ubuntu 22.04+, 512MB RAM, ports 80 and 443 open. Node.js 20 is auto-installed.</div>
-        </div>
-
-        <!-- ENV VARS -->
-        <div class="doc-section" id="doc-env-vars">
-          <h3>Environment Variables</h3>
-          <p>Configure via <span class="inline-code">server/.env</span> (auto-created by deploy script).</p>
-          <table class="param-table">
-            <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
-            <tbody>
-              <tr><td>PORT</td><td>3000</td><td>Server listen port</td></tr>
-              <tr><td>DB_PATH</td><td>./silentshield.db</td><td>SQLite database file path</td></tr>
-              <tr><td>ADMIN_SECRET</td><td>(random 32-byte hex)</td><td>Admin dashboard password</td></tr>
-              <tr><td>CORS_ORIGINS</td><td>*</td><td>Allowed CORS origins (comma-separated)</td></tr>
-              <tr><td>RATE_LIMIT_MAX</td><td>200</td><td>Max requests per window</td></tr>
-              <tr><td>RATE_LIMIT_WINDOW_MS</td><td>60000</td><td>Rate limit window in ms</td></tr>
-              <tr><td>NODE_ENV</td><td>development</td><td>Set to <span class="inline-code">production</span> on VPS</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- FRAMEWORKS -->
-        <div class="doc-section" id="doc-frameworks">
-          <h3>Framework Guides</h3>
-
-          <h4>React</h4>
-          <div class="code-card"><div class="code-bar"><span>React hook</span></div>
-<pre><span class="c-p">import</span> { useEffect, useRef } <span class="c-p">from</span> <span class="c-y">'react'</span>;
-<span class="c-p">import</span> SilentShield <span class="c-p">from</span> <span class="c-y">'silentshield'</span>;
-
-<span class="c-p">export</span> <span class="c-p">function</span> <span class="c-g">ContactForm</span>() {
-  <span class="c-p">const</span> formRef <span class="c-d">=</span> useRef();
-
-  <span class="c-g">useEffect</span>(() <span class="c-d">=&gt;</span> {
-    <span class="c-p">const</span> shield <span class="c-d">=</span> <span class="c-p">new</span> <span class="c-g">SilentShield</span>({
-      apiUrl: <span class="c-y">'https://sh.krl.kr'</span>
-    });
-    shield.<span class="c-g">protect</span>(formRef.current);
-  }, []);
-
-  <span class="c-p">return</span> &lt;form ref={formRef} onSubmit={handleSubmit}&gt;...&lt;/form&gt;;
-}</pre></div>
-
-          <h4>Next.js (App Router)</h4>
-          <div class="code-card"><div class="code-bar"><span>Next.js API route — app/api/submit/route.js</span></div>
-<pre><span class="c-p">export async function</span> <span class="c-g">POST</span>(req) {
-  <span class="c-p">const</span> { token, ...formData } <span class="c-d">=</span> <span class="c-p">await</span> req.<span class="c-g">json</span>();
-  <span class="c-p">const</span> r <span class="c-d">=</span> <span class="c-p">await</span> <span class="c-g">fetch</span>(<span class="c-y">'https://sh.krl.kr/api/verify'</span>, {
-    method: <span class="c-y">'POST'</span>,
-    headers: { <span class="c-y">'Content-Type'</span>: <span class="c-y">'application/json'</span> },
-    body: JSON.<span class="c-g">stringify</span>({ token })
-  });
-  <span class="c-p">const</span> { valid } <span class="c-d">=</span> <span class="c-p">await</span> r.<span class="c-g">json</span>();
-  <span class="c-p">if</span> (!valid) <span class="c-p">return</span> Response.<span class="c-g">json</span>({ error: <span class="c-y">'Bot'</span> }, { status: <span class="c-r">403</span> });
-  <span class="c-d">// process form...</span>
-}</pre></div>
-
-          <h4>WordPress / PHP</h4>
-          <div class="code-card"><div class="code-bar"><span>PHP</span></div>
-<pre><span class="c-d">// In functions.php or plugin:</span>
-<span class="c-p">function</span> <span class="c-g">ss_verify</span>($token) {
-  $r = wp_remote_post(<span class="c-y">'https://sh.krl.kr/api/verify'</span>, [
-    <span class="c-y">'body'</span> => json_encode([<span class="c-y">'token'</span> => $token]),
-    <span class="c-y">'headers'</span> => [<span class="c-y">'Content-Type'</span> => <span class="c-y">'application/json'</span>]
-  ]);
-  $data = json_decode(wp_remote_retrieve_body($r), true);
-  <span class="c-p">return</span> !empty($data[<span class="c-y">'valid'</span>]);
-}</pre></div>
-        </div>
-
-      </div><!-- /docs-content -->
-    </div><!-- /docs-layout -->
-  </div>
-</section>
 
 <!-- SELF HOST -->
 <section id="self-host">
@@ -960,7 +516,7 @@ certbot --nginx -d your-domain.com
       <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How does it protect user privacy? <span>+</span></button><div class="faq-a">SilentShield never sends PII. IPs are base64 hashed (not reversible). No cross-site tracking, no user profiling, no data sold. All collected signals are behavioral and anonymous.</div></div>
       <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What's the false positive rate? <span>+</span></button><div class="faq-a">Very low. Score-based thresholds (≥70 human, 45–69 suspicious, &lt;45 bot) let you tune sensitivity. Default settings are conservative —real users consistently score 75—5.</div></div>
       <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What if bots start bypassing it? <span>+</span></button><div class="faq-a">The bot learning job runs every 10 minutes, analyzing recent traffic and updating detection thresholds. You can also self-host and tune scorer.js weights for your specific threat profile.</div></div>
-      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Does it work with React/Vue/Next.js? <span>+</span></button><div class="faq-a">Yes. Install via npm and import as an ES module. Works with any framework. See the Frameworks section in the docs above.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Does it work with React/Vue/Next.js? <span>+</span></button><div class="faq-a">Yes. Install via npm and import as an ES module. Works with any framework.</div></div>
       <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How is this different from ALTCHA? <span>+</span></button><div class="faq-a">ALTCHA focuses on Proof-of-Work as the primary signal. SilentShield adds 11 more layers: mouse entropy, keyboard biometrics, font enumeration, speech synthesis detection, canvas/WebGL/audio fingerprinting, honeypot, spam filter, and bot learning. Both are open source and free.</div></div>
     </div>
   </div>
@@ -979,7 +535,7 @@ certbot --nginx -d your-domain.com
     <div class="footer-links">
       <a href="https://github.com/3289david/silentshield" target="_blank">GitHub</a>
       <a href="https://www.npmjs.com/package/silentshield" target="_blank">npm</a>
-      <a href="#docs">Docs</a>
+      <a href="/test">Live Test</a>
       <a href="/dashboard">Dashboard</a>
       <a href="https://buymeacoffee.com/rukkitofficial" target="_blank">Donate</a>
       <a href="https://github.com/3289david/silentshield/issues" target="_blank">Issues</a>
@@ -1025,14 +581,6 @@ certbot --nginx -d your-domain.com
     });
   }
 
-  // Docs nav
-  function showDoc(id, el) {
-    event.preventDefault();
-    document.querySelectorAll('.doc-section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.docs-nav a').forEach(a => a.classList.remove('active'));
-    document.getElementById('doc-' + id).classList.add('active');
-    el.classList.add('active');
-  }
 
   // Tabs (kept for compatibility)
   function showTab(id) {
