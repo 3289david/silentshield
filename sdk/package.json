@@ -1,7 +1,7 @@
 {
-  "name": "silentshield-js",
-  "version": "1.1.0",
-  "description": "Invisible CAPTCHA protection — no puzzles, no friction for your users",
+  "name": "silentshield",
+  "version": "2.0.0",
+  "description": "Invisible bot protection — no CAPTCHAs, no limits, no cost. Open source.",
   "main": "dist/silentshield.js",
   "module": "dist/silentshield.esm.js",
   "browser": "dist/silentshield.min.js",
@@ -11,20 +11,19 @@
     "build": "node build.js"
   },
   "keywords": [
-    "captcha",
-    "bot-detection",
-    "spam-protection",
-    "invisible-captcha",
-    "silentshield"
+    "captcha", "bot-detection", "spam-protection", "invisible-captcha",
+    "silentshield", "honeypot", "proof-of-work", "open-source", "free",
+    "recaptcha-alternative", "no-captcha", "bot-protection", "altcha-alternative"
   ],
-  "author": "SilentShield",
+  "author": "SilentShield Contributors",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/3289david/silentshield"
   },
-  "files": [
-    "dist/",
-    "src/"
-  ]
+  "homepage": "https://silentshield.krl.rk",
+  "bugs": {
+    "url": "https://github.com/3289david/silentshield/issues"
+  },
+  "files": ["dist/", "src/"]
 }

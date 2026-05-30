@@ -5,21 +5,14 @@ const { computeScore } = require('../scorer');
 
 const router = express.Router();
 
-// POST /api/signal — called by the JS SDK (browser → SilentShield)
+// POST /api/signal — called by the JS SDK. No key required.
 router.post('/signal', (req, res) => {
   try {
     const signals = req.body || {};
     const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '';
     const ua = req.headers['user-agent'] || '';
+    // siteId is purely optional — for analytics grouping only
     const siteId = signals.siteId || null;
-
-    if (siteId) {
-      const site = db.prepare('SELECT * FROM sites WHERE public_key = ?').get(siteId);
-      if (!site) return res.status(403).json({ error: 'Unknown site key' });
-      if (site.plan === 'free' && site.monthly_requests >= 50000) {
-        return res.status(429).json({ error: 'Monthly limit reached. Upgrade at silentshield.io' });
-      }
-    }
 
     const { score, verdict, breakdown } = computeScore(signals, ip, ua);
     const token = uuidv4();
@@ -29,7 +22,9 @@ router.post('/signal', (req, res) => {
 
     const ipHash = Buffer.from(ip).toString('base64').slice(0, 16);
     db.prepare(`
-      INSERT INTO submissions (id, site_id, score, verdict, behavior_score, input_score, env_score, ip_hash, user_agent, form_fill_ms, mouse_events, scroll_events, honeypot_triggered, spam_detected, signals)
+      INSERT INTO submissions (id, site_id, score, verdict, behavior_score, input_score, env_score,
+        ip_hash, user_agent, form_fill_ms, mouse_events, scroll_events,
+        honeypot_triggered, spam_detected, signals)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       uuidv4(), siteId, score, verdict,
@@ -41,10 +36,6 @@ router.post('/signal', (req, res) => {
       signalsJson
     );
 
-    if (siteId) {
-      db.prepare(`UPDATE sites SET monthly_requests = monthly_requests + 1 WHERE public_key = ?`).run(siteId);
-    }
-
     res.json({ token, score, verdict });
   } catch (err) {
     console.error('[/api/signal]', err);
@@ -52,16 +43,11 @@ router.post('/signal', (req, res) => {
   }
 });
 
-// POST /api/verify — called by the developer's server
+// POST /api/verify — verify a token server-side. Secret key optional.
 router.post('/verify', (req, res) => {
   try {
-    const { token, secret } = req.body || {};
+    const { token } = req.body || {};
     if (!token) return res.status(400).json({ error: 'token required' });
-
-    if (secret) {
-      const site = db.prepare('SELECT id FROM sites WHERE secret_key = ?').get(secret);
-      if (!site) return res.status(403).json({ error: 'Invalid secret key' });
-    }
 
     const record = db.prepare('SELECT * FROM tokens WHERE token = ?').get(token);
     if (!record) return res.json({ valid: false, error: 'Token not found or expired' });
@@ -69,7 +55,7 @@ router.post('/verify', (req, res) => {
 
     db.prepare('UPDATE tokens SET used = 1 WHERE token = ?').run(token);
 
-    const valid = record.verdict === 'human' || record.verdict === 'suspicious';
+    const valid = record.verdict !== 'bot';
     res.json({ valid, score: record.score, verdict: record.verdict, timestamp: record.created_at });
   } catch (err) {
     console.error('[/api/verify]', err);
@@ -77,25 +63,28 @@ router.post('/verify', (req, res) => {
   }
 });
 
-// POST /api/register — register a new site
+// POST /api/register — optional site registration for dashboard analytics
 router.post('/register', (req, res) => {
   try {
     const { domain, name } = req.body || {};
     if (!domain) return res.status(400).json({ error: 'domain required' });
 
     const cleanDomain = domain.toLowerCase().trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
-    const existing = db.prepare('SELECT public_key, secret_key, plan, monthly_requests FROM sites WHERE domain = ?').get(cleanDomain);
-    if (existing) {
-      return res.json({ message: 'Site already registered', ...existing });
-    }
+    const existing = db.prepare('SELECT public_key, secret_key FROM sites WHERE domain = ?').get(cleanDomain);
+    if (existing) return res.json({ message: 'Site already registered', ...existing });
 
     const id = uuidv4();
-    const publicKey = 'pk_' + uuidv4().replace(/-/g, '').slice(0, 24);
-    const secretKey = 'sk_' + uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, '');
+    const publicKey  = 'pk_' + uuidv4().replace(/-/g, '').slice(0, 24);
+    const secretKey  = 'sk_' + uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, '');
 
     db.prepare(`INSERT INTO sites (id, domain, name, public_key, secret_key) VALUES (?, ?, ?, ?, ?)`).run(id, cleanDomain, name || cleanDomain, publicKey, secretKey);
 
-    res.json({ message: 'Site registered successfully', public_key: publicKey, secret_key: secretKey, plan: 'free', monthly_limit: 50000 });
+    res.json({
+      message: 'Site registered — dashboard analytics enabled',
+      public_key: publicKey,
+      secret_key: secretKey,
+      note: 'Keys are optional — SilentShield works without them. Use them only for analytics.',
+    });
   } catch (err) {
     console.error('[/api/register]', err);
     res.status(500).json({ error: 'Internal error' });
