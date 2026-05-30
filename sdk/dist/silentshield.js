@@ -368,7 +368,6 @@
     s.webglRenderer = wgl.renderer;
     s.webglHeadless = wgl.headless;
     s.webglParams   = wgl.params;
-    s.audioFingerprint  = getAudioFingerprint();
     s.fontCount         = getFontCount();
     s.speechVoiceCount  = getSpeechVoiceCount();
     s.perfPrecision     = getPerfPrecision();
@@ -503,6 +502,7 @@
 
           var s = self._signals;
           s.formFillMs = s.formFillStart ? Date.now() - s.formFillStart : 0;
+          s.audioFingerprint = getAudioFingerprint();
           self._collectFormText(form);
 
           (self._powPromise || Promise.resolve()).then(function() {
