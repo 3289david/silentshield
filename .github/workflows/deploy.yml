@@ -47,6 +47,6 @@ jobs:
       - name: Build SDK
         run: cd sdk && npm install && node build.js
       - name: Publish to npm
-        run: cd sdk && npm publish --access public
+        run: cd sdk && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

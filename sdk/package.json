@@ -1,5 +1,5 @@
 {
-  "name": "@silentshield/js",
+  "name": "silentshield-js",
   "version": "1.0.0",
   "description": "Invisible CAPTCHA protection — no puzzles, no friction for your users",
   "main": "dist/silentshield.js",
@@ -15,7 +15,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/silentshield/silentshield-js"
+    "url": "https://github.com/3289david/silentshield"
   },
   "files": ["dist/", "src/"]
 }
