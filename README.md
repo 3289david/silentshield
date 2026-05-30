@@ -1,6 +1,6 @@
-# 🛡️ SilentShield
+﻿# ?썳截?SilentShield
 
-**Invisible bot protection — no CAPTCHAs, no friction, no puzzles. Free forever.**
+**Invisible bot protection ??no CAPTCHAs, no friction, no puzzles. Free forever.**
 
 Stop bots silently using 12 layers of behavioral analysis, browser fingerprinting, biometrics, and Proof-of-Work. Users never see a CAPTCHA or challenge. Open source, MIT licensed.
 
@@ -8,8 +8,8 @@ Stop bots silently using 12 layers of behavioral analysis, browser fingerprintin
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/silentshield/badge)](https://www.jsdelivr.com/package/npm/silentshield)
 
-**Website:** https://silentshield.krl.kr  
-**API:** https://silentshield.krl.kr/api  
+**Website:** https://sh.krl.kr  
+**API:** https://sh.krl.kr/api  
 **CDN:** https://cdn.jsdelivr.net/npm/silentshield@latest/dist/silentshield.min.js  
 **GitHub:** https://github.com/3289david/silentshield
 
@@ -19,21 +19,21 @@ Stop bots silently using 12 layers of behavioral analysis, browser fingerprintin
 
 | | SilentShield | reCAPTCHA v3 | hCaptcha | Cloudflare Turnstile |
 |---|---|---|---|---|
-| **Free** | ✓ Unlimited | 1M req/mo | 1M req/mo | Free tier only |
-| **No API key** | ✓ | ✗ | ✗ | ✗ |
-| **No CAPTCHAs** | ✓ | ✓ | ✗ | ✓ |
-| **Open source** | ✓ MIT | ✗ | ✗ | ✗ |
-| **Self-hostable** | ✓ | ✗ | ✗ | ✗ |
-| **GDPR-safe** | ✓ | ✗ | ✗ | ✗ |
-| **Keyboard biometrics** | ✓ | ✗ | ✗ | ✗ |
-| **Font enumeration** | ✓ | ✗ | ✗ | ✗ |
-| **Bot learning** | ✓ every 10min | Google ML | Proprietary | Proprietary |
+| **Free** | ??Unlimited | 1M req/mo | 1M req/mo | Free tier only |
+| **No API key** | ??| ??| ??| ??|
+| **No CAPTCHAs** | ??| ??| ??| ??|
+| **Open source** | ??MIT | ??| ??| ??|
+| **Self-hostable** | ??| ??| ??| ??|
+| **GDPR-safe** | ??| ??| ??| ??|
+| **Keyboard biometrics** | ??| ??| ??| ??|
+| **Font enumeration** | ??| ??| ??| ??|
+| **Bot learning** | ??every 10min | Google ML | Proprietary | Proprietary |
 
 ---
 
 ## Quick Start (30 seconds)
 
-### Option A — CDN (no build step)
+### Option A ??CDN (no build step)
 
 ```html
 <!-- 1. Add to <head> -->
@@ -51,7 +51,7 @@ Stop bots silently using 12 layers of behavioral analysis, browser fingerprintin
 
 No API key needed. No registration. It just works.
 
-### Option B — npm
+### Option B ??npm
 
 ```bash
 npm install silentshield
@@ -61,17 +61,17 @@ npm install silentshield
 import SilentShield from 'silentshield';
 
 const shield = new SilentShield({
-  apiUrl: 'https://silentshield.krl.kr',  // or your self-hosted URL
+  apiUrl: 'https://sh.krl.kr',  // or your self-hosted URL
 });
 
 shield.protect('#my-form');
 ```
 
-### Step 3 — Verify on your server
+### Step 3 ??Verify on your server
 
 ```js
 // Node.js
-const res = await fetch('https://silentshield.krl.kr/api/verify', {
+const res = await fetch('https://sh.krl.kr/api/verify', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ token: req.body._ss_token }),
@@ -83,7 +83,7 @@ if (!valid) return res.status(403).send('Blocked');
 
 ```php
 // PHP
-$data = json_decode(file_get_contents('https://silentshield.krl.kr/api/verify', false,
+$data = json_decode(file_get_contents('https://sh.krl.kr/api/verify', false,
   stream_context_create(['http' => [
     'method' => 'POST',
     'header' => 'Content-Type: application/json',
@@ -96,7 +96,7 @@ if (!$data['valid']) { http_response_code(403); exit; }
 ```python
 # Python
 import requests
-r = requests.post('https://silentshield.krl.kr/api/verify', json={'token': token})
+r = requests.post('https://sh.krl.kr/api/verify', json={'token': token})
 if not r.json().get('valid'): abort(403)
 ```
 
@@ -104,7 +104,7 @@ if not r.json().get('valid'): abort(403)
 
 ## Detection Layers (12 total)
 
-### Layer 1 — Proof of Work (PoW)
+### Layer 1 ??Proof of Work (PoW)
 **Score weight: +15 / -35**
 
 The SDK starts solving a SHA-256 hashcash puzzle in the background the moment the page loads:
@@ -113,11 +113,11 @@ The SDK starts solving a SHA-256 hashcash puzzle in the background the moment th
 find nonce where SHA256(challenge + nonce).startsWith("000")
 ```
 
-Real browsers solve it in ~100–400ms using `crypto.subtle.digest()`. The server verifies the solution on every submission. A missing or invalid PoW deducts 35 points. A pre-computed answer solved in <5ms deducts 25 points.
+Real browsers solve it in ~100??00ms using `crypto.subtle.digest()`. The server verifies the solution on every submission. A missing or invalid PoW deducts 35 points. A pre-computed answer solved in <5ms deducts 25 points.
 
 ---
 
-### Layer 2 — Behavioral Analysis
+### Layer 2 ??Behavioral Analysis
 **Score weight: up to +40**
 
 Tracks raw interaction counts:
@@ -136,7 +136,7 @@ Zero interaction on all signals deducts 30 points.
 
 ---
 
-### Layer 3 — Mouse Path Entropy
+### Layer 3 ??Mouse Path Entropy
 **Score weight: +12 / -18**
 
 Measures the **angle-change variance** across every recorded mouse position. Humans move the mouse in natural, organic curves with random micro-tremors. The variance is typically >0.01 radians/event.
@@ -145,14 +145,14 @@ Bots either produce no mouse movement or move in perfectly straight lines (near-
 
 ---
 
-### Layer 4 — Mouse Speed Variance
+### Layer 4 ??Mouse Speed Variance
 **Score weight: +5**
 
 Calculates speed (pixels/ms) between consecutive mouse positions and measures its variance. Humans accelerate and decelerate constantly. Automated mouse injection tools typically move at constant speed, producing near-zero speed variance.
 
 ---
 
-### Layer 5 — Keyboard Biometrics
+### Layer 5 ??Keyboard Biometrics
 **Score weight: +18 / -45**
 
 Captures inter-keystroke timing intervals (up to 120 stored). The variance of these intervals reveals:
@@ -174,7 +174,7 @@ Form fill time scoring:
 
 ---
 
-### Layer 6 — Canvas Fingerprinting
+### Layer 6 ??Canvas Fingerprinting
 **Score weight: +10 / -25**
 
 Renders a multi-layer canvas (gradient, two fonts, arc, bezier) and reads the last 80 bytes of the PNG data. Headless Chromium, PhantomJS, and server-side renderers produce characteristic patterns due to missing GPU acceleration and font rendering differences.
@@ -185,7 +185,7 @@ Known headless fingerprint patterns:
 
 ---
 
-### Layer 7 — WebGL Renderer Detection
+### Layer 7 ??WebGL Renderer Detection
 **Score weight: +12 / -35**
 
 Calls `WEBGL_debug_renderer_info` to read the GPU vendor and renderer strings. Known software renderers used by headless environments:
@@ -203,52 +203,52 @@ Also reads `MAX_TEXTURE_SIZE` and `MAX_VERTEX_ATTRIBS` for additional GPU finger
 
 ---
 
-### Layer 8 — Audio Fingerprinting
+### Layer 8 ??Audio Fingerprinting
 **Score weight: +8 / -8**
 
-Creates an `AudioContext`, routes a triangle oscillator through an `AnalyserNode`, and captures the frequency data signature (50-point FFT). Headless environments lack a real audio pipeline — they either throw errors or produce flat zero output.
+Creates an `AudioContext`, routes a triangle oscillator through an `AnalyserNode`, and captures the frequency data signature (50-point FFT). Headless environments lack a real audio pipeline ??they either throw errors or produce flat zero output.
 
 ---
 
-### Layer 9 — Font Enumeration
+### Layer 9 ??Font Enumeration
 **Score weight: +10 / -8**
 
-Renders a test string in 28 known fonts and measures the pixel width using canvas. A font is "detected" when its rendered width differs from the monospace baseline. Real desktop browsers have 10–25 fonts installed. Headless/sandboxed environments typically have 0–2.
+Renders a test string in 28 known fonts and measures the pixel width using canvas. A font is "detected" when its rendered width differs from the monospace baseline. Real desktop browsers have 10??5 fonts installed. Headless/sandboxed environments typically have 0??.
 
 ---
 
-### Layer 10 — Environment & API Flags
+### Layer 10 ??Environment & API Flags
 **Score weight: up to +45 / -70**
 
 Checks 20+ browser environment signals:
 
 | Signal | Real Browser | Headless |
 |--------|-------------|---------|
-| `navigator.webdriver` | false | **true → -70** |
+| `navigator.webdriver` | false | **true ??-70** |
 | Plugin count | >3 | 0 |
-| `window.chrome` defined | ✓ in Chrome | Often absent |
-| `localStorage` available | ✓ | Sometimes blocked |
-| `indexedDB` available | ✓ | Sometimes blocked |
+| `window.chrome` defined | ??in Chrome | Often absent |
+| `localStorage` available | ??| Sometimes blocked |
+| `indexedDB` available | ??| Sometimes blocked |
 | `speechSynthesis.getVoices()` | >5 voices | 0 |
-| `navigator.getBattery` | ✓ | Absent |
-| `window.innerWidth` / `screen.width` | ratio 0.4–0.99 | ratio ≥0.99 |
+| `navigator.getBattery` | ??| Absent |
+| `window.innerWidth` / `screen.width` | ratio 0.4??.99 | ratio ??.99 |
 | `navigator.hardwareConcurrency` | >1 | Often 1 |
-| `pointer: fine` media query | ✓ on desktop | Absent |
-| `hover: hover` media query | ✓ on desktop | Absent |
-| `colorDepth` ≥ 24 | ✓ | Sometimes 8 |
+| `pointer: fine` media query | ??on desktop | Absent |
+| `hover: hover` media query | ??on desktop | Absent |
+| `colorDepth` ??24 | ??| Sometimes 8 |
 | Cloud/datacenter IP | Unusual | Common |
 | `pixelRatio` > 1 | HiDPI device | Often 1 |
 
 ---
 
-### Layer 11 — Speech Synthesis
+### Layer 11 ??Speech Synthesis
 **Score weight: +10 / -5**
 
-`speechSynthesis.getVoices()` returns the list of TTS voices installed on the OS. Real desktop browsers return 5–60 voices. Headless Chrome on a bare VPS returns 0.
+`speechSynthesis.getVoices()` returns the list of TTS voices installed on the OS. Real desktop browsers return 5??0 voices. Headless Chrome on a bare VPS returns 0.
 
 ---
 
-### Layer 12 — Rotating Smart Honeypot
+### Layer 12 ??Rotating Smart Honeypot
 **Score weight: -100 if triggered**
 
 Injects a CSS-invisible input field with one of 25 rotating names (`website`, `homepage`, `company_url`, `phone2`, etc.). The name rotates on every page load to defeat bot databases that learn to skip known honeypot names. Real users never fill it. Any value in the field = **automatic bot verdict**.
@@ -285,7 +285,7 @@ const shield = new SilentShield({
   // Optional: your domain's public key (for analytics only)
   publicKey: 'pk_abc123',
 
-  // API endpoint (default: https://silentshield.krl.kr)
+  // API endpoint (default: https://sh.krl.kr)
   apiUrl: 'https://your-own-server.com',
 
   // Score threshold below which to block (default: 45)
@@ -303,7 +303,7 @@ const shield = new SilentShield({
 shield.protect('#contact-form');
 
 // Or protect all [data-silentshield] forms
-SilentShield.init({ apiUrl: 'https://silentshield.krl.kr' });
+SilentShield.init({ apiUrl: 'https://sh.krl.kr' });
 ```
 
 ---
@@ -324,7 +324,7 @@ Called automatically by the JS SDK. Accepts all behavioral signals and returns a
 }
 ```
 
-Verdicts: `"human"` (≥70) · `"suspicious"` (45–69) · `"bot"` (<45)
+Verdicts: `"human"` (??0) 쨌 `"suspicious"` (45??9) 쨌 `"bot"` (<45)
 
 ---
 
@@ -346,7 +346,7 @@ Your server calls this to validate a token before processing a form submission.
 }
 ```
 
-Tokens are **one-time use** — calling verify twice on the same token returns `valid: false`.
+Tokens are **one-time use** ??calling verify twice on the same token returns `valid: false`.
 
 ---
 
@@ -363,7 +363,7 @@ Register your domain to get analytics keys. Completely optional.
 {
   "public_key": "pk_abc...",
   "secret_key": "sk_xyz...",
-  "message": "Site registered — dashboard analytics enabled"
+  "message": "Site registered ??dashboard analytics enabled"
 }
 ```
 
@@ -397,7 +397,7 @@ This script:
 
 ```bash
 apt install nginx certbot python3-certbot-nginx
-certbot --nginx -d silentshield.krl.kr
+certbot --nginx -d sh.krl.kr
 cp nginx.conf /etc/nginx/sites-available/silentshield
 ln -s /etc/nginx/sites-available/silentshield /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
@@ -419,7 +419,7 @@ nginx -t && systemctl reload nginx
 
 ## GitHub Actions CI/CD
 
-Set these secrets in your repo → **Settings → Secrets**:
+Set these secrets in your repo ??**Settings ??Secrets**:
 
 | Secret | Value |
 |--------|-------|
@@ -428,14 +428,14 @@ Set these secrets in your repo → **Settings → Secrets**:
 | `VPS_SSH_KEY` | Private SSH key (RSA/ED25519) |
 | `NPM_TOKEN` | npm automation token |
 
-- Push to `main` → auto-deploys to VPS via SSH
-- Tag `vX.Y.Z` → auto-publishes to npm
+- Push to `main` ??auto-deploys to VPS via SSH
+- Tag `vX.Y.Z` ??auto-publishes to npm
 
 ---
 
 ## License
 
-MIT — free to use, modify, self-host, and redistribute.
+MIT ??free to use, modify, self-host, and redistribute.
 
 ---
 
@@ -443,4 +443,5 @@ MIT — free to use, modify, self-host, and redistribute.
 
 If SilentShield saves you from paying for reCAPTCHA Enterprise or hCaptcha, consider buying a coffee:
 
-☕ **[buymeacoffee.com/rukkitofficial](https://buymeacoffee.com/rukkitofficial)**
+??**[buymeacoffee.com/rukkitofficial](https://buymeacoffee.com/rukkitofficial)**
+

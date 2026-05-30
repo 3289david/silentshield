@@ -1,7 +1,7 @@
-/**
+﻿/**
  * SilentShield JS SDK v2.1
- * Invisible bot detection — 12-layer analysis: PoW, behavioral, biometrics, fingerprinting.
- * https://silentshield.krl.kr
+ * Invisible bot detection ??12-layer analysis: PoW, behavioral, biometrics, fingerprinting.
+ * https://sh.krl.kr
  * CDN: https://cdn.jsdelivr.net/npm/silentshield@latest/dist/silentshield.min.js
  */
 (function (global, factory) {
@@ -11,7 +11,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : this, function () {
   'use strict';
 
-  var DEFAULT_API = 'https://silentshield.krl.kr';
+  var DEFAULT_API = 'https://sh.krl.kr';
   var POW_DIFFICULTY = 3;
 
   var HONEYPOT_NAMES = [
@@ -21,7 +21,7 @@
     'homepage','business_url','your_website','website_address','company_url',
   ];
 
-  // ─── Proof of Work ───────────────────────────────────────────────────────────
+  // ??? Proof of Work ???????????????????????????????????????????????????????????
   function bytesToHex(buf) {
     return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
   }
@@ -56,7 +56,7 @@
     });
   }
 
-  // ─── Canvas fingerprint ──────────────────────────────────────────────────────
+  // ??? Canvas fingerprint ??????????????????????????????????????????????????????
   function getCanvasFingerprint() {
     try {
       var c = document.createElement('canvas');
@@ -71,10 +71,10 @@
       ctx.textBaseline = 'alphabetic';
       ctx.font = '16px Arial';
       ctx.fillStyle = '#fff';
-      ctx.fillText('SilentShield 🛡 bot?', 4, 24);
+      ctx.fillText('SilentShield ?썳 bot?', 4, 24);
       ctx.font = '13px Georgia';
       ctx.fillStyle = 'rgba(102,204,0,0.85)';
-      ctx.fillText('1l0O☃éàü', 4, 48);
+      ctx.fillText('1l0O?꺝㈒졗?, 4, 48);
       // Layer 3: arc + bezier curve
       ctx.beginPath();
       ctx.arc(220, 30, 20, 0, Math.PI * 2);
@@ -85,7 +85,7 @@
     } catch (e) { return 'blocked'; }
   }
 
-  // ─── WebGL fingerprint ───────────────────────────────────────────────────────
+  // ??? WebGL fingerprint ???????????????????????????????????????????????????????
   function getWebGLInfo() {
     try {
       var c = document.createElement('canvas');
@@ -103,7 +103,7 @@
     } catch (e) { return { vendor: 'error', renderer: 'error', headless: false, params: '' }; }
   }
 
-  // ─── Audio fingerprint ───────────────────────────────────────────────────────
+  // ??? Audio fingerprint ???????????????????????????????????????????????????????
   function getAudioFingerprint() {
     try {
       var AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -128,7 +128,7 @@
     } catch (e) { return 'error'; }
   }
 
-  // ─── Font enumeration (canvas width trick) ──────────────────────────────────
+  // ??? Font enumeration (canvas width trick) ??????????????????????????????????
   function getFontCount() {
     try {
       if (!document.createElement) return 0;
@@ -153,7 +153,7 @@
     } catch (e) { return -1; }
   }
 
-  // ─── Speech synthesis voices ─────────────────────────────────────────────────
+  // ??? Speech synthesis voices ?????????????????????????????????????????????????
   function getSpeechVoiceCount() {
     try {
       if (typeof window === 'undefined' || !window.speechSynthesis) return 0;
@@ -161,7 +161,7 @@
     } catch (e) { return 0; }
   }
 
-  // ─── CSS media query signals ─────────────────────────────────────────────────
+  // ??? CSS media query signals ?????????????????????????????????????????????????
   function getMediaQuerySignals() {
     try {
       if (typeof window === 'undefined' || !window.matchMedia) return {};
@@ -175,7 +175,7 @@
     } catch (e) { return {}; }
   }
 
-  // ─── Storage / API availability checks ──────────────────────────────────────
+  // ??? Storage / API availability checks ??????????????????????????????????????
   function getApiFlags() {
     var flags = {
       hasLocalStorage:  false,
@@ -202,7 +202,7 @@
     return flags;
   }
 
-  // ─── Performance timing precision ────────────────────────────────────────────
+  // ??? Performance timing precision ????????????????????????????????????????????
   // Real browsers clamp performance.now() to 0.1ms (COOP/COEP), headless/node vary
   function getPerfPrecision() {
     try {
@@ -219,7 +219,7 @@
     } catch (e) { return -1; }
   }
 
-  // ─── Mouse path entropy ──────────────────────────────────────────────────────
+  // ??? Mouse path entropy ??????????????????????????????????????????????????????
   function calcMouseEntropy(path) {
     if (!path || path.length < 4) return 0;
     var angles = [];
@@ -233,7 +233,7 @@
     return Math.round(variance * 10000) / 10000;
   }
 
-  // ─── Mouse speed variance ────────────────────────────────────────────────────
+  // ??? Mouse speed variance ????????????????????????????????????????????????????
   function calcMouseSpeedVariance(path) {
     if (!path || path.length < 4) return 0;
     var speeds = [];
@@ -249,13 +249,13 @@
     return Math.round(variance * 1000) / 1000;
   }
 
-  // ─── Permission probing ──────────────────────────────────────────────────────
+  // ??? Permission probing ??????????????????????????????????????????????????????
   function getPermissionState(cb) {
     if (typeof navigator === 'undefined' || !navigator.permissions) return cb('unsupported');
     navigator.permissions.query({ name: 'notifications' }).then(function(r){ cb(r.state); }).catch(function(){ cb('error'); });
   }
 
-  // ─── SilentShield constructor ─────────────────────────────────────────────────
+  // ??? SilentShield constructor ?????????????????????????????????????????????????
   function SilentShield(opts) {
     this.publicKey   = opts.publicKey || null;
     this.apiUrl      = (opts.apiUrl || DEFAULT_API).replace(/\/$/, '');
@@ -523,7 +523,7 @@
             tokenInput.value = result.token;
             HTMLFormElement.prototype.submit.call(form);
           }).catch(function() {
-            // Fail open — never block real users on network error
+            // Fail open ??never block real users on network error
             HTMLFormElement.prototype.submit.call(form);
           });
         }, { capture: true });
@@ -532,7 +532,7 @@
     return this;
   };
 
-  // Convenience: SilentShield.init(opts) — auto-protects all [data-silentshield] forms
+  // Convenience: SilentShield.init(opts) ??auto-protects all [data-silentshield] forms
   SilentShield.init = function(opts) {
     var instance = new SilentShield(opts || {});
     if (typeof document !== 'undefined') {
@@ -545,7 +545,7 @@
     return instance;
   };
 
-  // onSubmit helper — call cb(token) when a human submits
+  // onSubmit helper ??call cb(token) when a human submits
   SilentShield.prototype.onSubmit = function(cb) {
     this._onSubmitCb = cb;
     return this;
@@ -561,3 +561,4 @@
 
   return SilentShield;
 });
+

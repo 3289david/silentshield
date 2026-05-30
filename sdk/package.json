@@ -1,7 +1,7 @@
-{
+﻿{
   "name": "silentshield",
   "version": "2.2.0",
-  "description": "Invisible bot protection — no CAPTCHAs, no limits, no cost. Open source.",
+  "description": "Invisible bot protection ??no CAPTCHAs, no limits, no cost. Open source.",
   "main": "dist/silentshield.js",
   "module": "dist/silentshield.esm.js",
   "browser": "dist/silentshield.min.js",
@@ -31,7 +31,7 @@
     "type": "git",
     "url": "https://github.com/3289david/silentshield"
   },
-  "homepage": "https://silentshield.krl.kr",
+  "homepage": "https://sh.krl.kr",
   "bugs": {
     "url": "https://github.com/3289david/silentshield/issues"
   },
@@ -40,3 +40,4 @@
     "src/"
   ]
 }
+
