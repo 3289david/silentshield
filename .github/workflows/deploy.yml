@@ -1,0 +1,52 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install & build SDK
+        run: |
+          cd sdk && npm install && node build.js
+          cp dist/silentshield.min.js ../public/sdk.js
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/silentshield
+            git pull origin main
+            cd sdk && npm install && node build.js
+            cp dist/silentshield.min.js ../public/sdk.js
+            cd ../server && npm install --production
+            pm2 restart silentshield || pm2 start index.js --name silentshield
+            pm2 save
+
+  publish-npm:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Build SDK
+        run: cd sdk && npm install && node build.js
+      - name: Publish to npm
+        run: cd sdk && npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SilentShield Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080b14; --surface: #0d1220; --surface2: #111827;
+      --border: rgba(99,102,241,0.15); --purple: #7c3aed; --purple-light: #a78bfa;
+      --blue: #3b82f6; --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+      --text: #f1f5f9; --muted: #94a3b8;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0; width: 240px;
+      background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; z-index: 50;
+    }
+    .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid var(--border); }
+    .sidebar-logo .logo { font-size: 18px; font-weight: 800; }
+    .sidebar-logo .logo span { color: var(--purple-light); }
+    .sidebar-logo small { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+      font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer;
+      transition: all .15s; border-left: 3px solid transparent; text-decoration: none;
+    }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,.03); }
+    .nav-item.active { color: var(--text); border-left-color: var(--purple); background: rgba(124,58,237,.08); }
+    .nav-section { padding: 20px 20px 8px; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+    .sidebar-bottom { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); }
+    .live-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; display: inline-block; animation: blink 1.5s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* MAIN */
+    .main { margin-left: 240px; padding: 24px; min-height: 100vh; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* HEADER */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .page-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+    .page-sub { font-size: 14px; color: var(--muted); margin-top: 2px; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .site-selector {
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit;
+    }
+    .badge-live {
+      display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+      background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);
+      border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--green);
+    }
+
+    /* STAT CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    @media (max-width:1100px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px 24px;
+    }
+    .stat-card-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .stat-card-num { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+    .stat-card-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .stat-trend { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-top: 8px; }
+    .trend-up { background: rgba(239,68,68,.12); color: var(--red); }
+    .trend-down { background: rgba(16,185,129,.12); color: var(--green); }
+
+    /* CHART */
+    .chart-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px; margin-bottom: 24px;
+    }
+    .chart-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .chart-card-title { font-size: 15px; font-weight: 700; }
+    .chart-legend { display: flex; gap: 16px; font-size: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 140px; }
+    .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; }
+    .bar-wrap { flex: 1; display: flex; align-items: flex-end; gap: 2px; width: 100%; }
+    .bar { flex: 1; border-radius: 4px 4px 0 0; min-height: 2px; transition: height .5s; }
+    .bar-label { font-size: 10px; color: var(--muted); text-align: center; }
+
+    /* GRIDS */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    @media (max-width:900px) { .two-col { grid-template-columns: 1fr; } }
+    .three-col { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
+    @media (max-width:900px) { .three-col { grid-template-columns: 1fr; } }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+    td { padding: 12px 16px; border-bottom: 1px solid rgba(99,102,241,0.07); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .verdict-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .v-human { background: rgba(16,185,129,.12); color: var(--green); }
+    .v-bot { background: rgba(239,68,68,.12); color: var(--red); }
+    .v-suspicious { background: rgba(245,158,11,.12); color: var(--yellow); }
+
+    /* SCORE BAR */
+    .score-mini { display: flex; align-items: center; gap: 8px; }
+    .score-mini-bar { flex: 1; height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; max-width: 80px; }
+    .score-mini-fill { height: 100%; border-radius: 2px; }
+
+    /* HONEYPOT / THREAT LIST */
+    .threat-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .threat-item:last-child { border-bottom: none; }
+    .threat-label { font-size: 14px; }
+    .threat-count { font-size: 18px; font-weight: 800; }
+    .threat-bar { height: 4px; background: var(--bg); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+    .threat-bar-fill { height: 100%; border-radius: 2px; background: var(--red); }
+
+    /* PATTERNS */
+    .pattern-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .pattern-row:last-child { border-bottom: none; }
+    .pattern-type { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+    .pt-ua { background: rgba(124,58,237,.15); color: var(--purple-light); }
+    .pt-timing { background: rgba(59,130,246,.15); color: var(--blue); }
+    .pt-behavior { background: rgba(245,158,11,.15); color: var(--yellow); }
+    .pattern-val { font-family: 'JetBrains Mono', monospace; flex: 1; }
+    .pattern-conf { font-size: 12px; color: var(--muted); }
+
+    /* KEYS PAGE */
+    .key-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+    .key-row { display: flex; align-items: center; gap: 12px; margin: 10px 0; }
+    .key-label { font-size: 12px; color: var(--muted); font-weight: 600; min-width: 100px; }
+    .key-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; flex: 1; background: var(--bg); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); overflow: hidden; text-overflow: ellipsis; }
+    .copy-btn { padding: 6px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; cursor: pointer; white-space: nowrap; transition: all .15s; }
+    .copy-btn:hover { background: var(--purple); border-color: var(--purple); }
+
+    /* FORM */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 10px 14px; border-radius: 8px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); font-size: 14px; outline: none; font-family: inherit; transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--purple); }
+    .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .2s; }
+    .btn-purple { background: var(--purple); color: #fff; }
+    .btn-purple:hover { background: #6d28d9; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--surface2); }
+
+    /* WORLD MAP placeholder */
+    .world-map {
+      background: var(--bg); border-radius: 10px; height: 220px;
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px;
+      position: relative; overflow: hidden;
+    }
+    .map-dots { position: absolute; inset: 0; }
+    .map-dot {
+      position: absolute; border-radius: 50%;
+      background: var(--red); opacity: .7;
+      animation: mapPulse 2s infinite;
+    }
+    @keyframes mapPulse { 0%,100%{transform:scale(1);opacity:.7} 50%{transform:scale(1.8);opacity:.3} }
+    .map-label { font-size: 13px; color: var(--muted); z-index: 1; }
+
+    /* LOADING */
+    .loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); font-size: 14px; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin .8s linear infinite; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* EMPTY */
+    .empty { text-align: center; padding: 60px 24px; color: var(--muted); font-size: 14px; }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    /* SECRET ENTRY */
+    .secret-gate {
+      max-width: 440px; margin: 80px auto;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px; text-align: center;
+    }
+    .secret-gate h2 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+    .secret-gate p { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+  </style>
+</head>
+<body>
+
+<!-- Secret gate -->
+<div id="gate" class="main" style="margin-left:0;">
+  <div class="secret-gate">
+    <div style="font-size:36px;margin-bottom:12px;">🛡️</div>
+    <h2>SilentShield Dashboard</h2>
+    <p>Enter your secret key to view analytics for your site.</p>
+    <div class="form-group">
+      <input type="password" id="gate-key" placeholder="sk_your_secret_key" style="text-align:center;font-family:'JetBrains Mono',monospace;" />
+    </div>
+    <button class="btn btn-purple" style="width:100%;" onclick="enterDashboard()">Enter Dashboard</button>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted);">
+      Don't have a key? <a href="/" style="color:var(--purple-light);">Register for free</a>
+    </div>
+    <div id="gate-error" style="display:none;margin-top:12px;color:var(--red);font-size:13px;"></div>
+  </div>
+</div>
+
+<!-- Dashboard (hidden until auth) -->
+<div id="app" style="display:none;">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo">Silent<span>Shield</span></div>
+      <small id="site-domain">Loading...</small>
+    </div>
+    <div class="nav-section">Monitor</div>
+    <a class="nav-item active" onclick="showPage('overview')">📊 Overview</a>
+    <a class="nav-item" onclick="showPage('threats')">🚨 Threats</a>
+    <a class="nav-item" onclick="showPage('submissions')">📋 Submissions</a>
+    <a class="nav-item" onclick="showPage('patterns')">🧠 Bot Patterns</a>
+    <div class="nav-section">Config</div>
+    <a class="nav-item" onclick="showPage('keys')">🔑 API Keys</a>
+    <a class="nav-item" href="/" target="_blank">🌐 Docs</a>
+    <div class="sidebar-bottom">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;">
+        <span class="live-dot"></span>
+        <span style="color:var(--muted);">Live — updating</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- OVERVIEW PAGE -->
+    <div class="page active" id="page-overview">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Overview</div>
+          <div class="page-sub">Last 24 hours · Auto-refreshes every 30s</div>
+        </div>
+        <div class="header-right">
+          <div class="badge-live"><span class="live-dot"></span> Live</div>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="stat-cards">
+        <div class="stat-card">
+          <div class="stat-card-label">Total Requests</div>
+          <div class="stat-card-num" id="s-total">—</div>
+          <div class="stat-trend trend-up" id="s-total-trend" style="display:none;">↑ vs yesterday</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Humans Passed</div>
+          <div class="stat-card-num" style="color:var(--green);" id="s-passed">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Bots Blocked</div>
+          <div class="stat-card-num" style="color:var(--red);" id="s-blocked">—</div>
+          <div class="stat-card-sub" id="s-block-rate"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Avg Score</div>
+          <div class="stat-card-num" id="s-score">—</div>
+          <div class="stat-card-sub">out of 100</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-card-title">Traffic — Last 7 Days</div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--blue);"></div> Total</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--red);"></div> Blocked</div>
+          </div>
+        </div>
+        <div class="bar-chart" id="week-chart">
+          <div class="loading"><div class="spinner"></div>Loading...</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="chart-card" style="margin-bottom:0;">
+          <div class="chart-card-header">
+            <div class="chart-card-title">Threat Breakdown</div>
+          </div>
+          <div id="threat-breakdown">
+            <div class="threat-item"><div><div class="threat-label">Form spam</div></div><div class="threat-count" style="color:var(--red);" id="th-spam">—</div></div>
+            <div class="threat-item"><div><div class="threat-label">Bot submissions</div></div><div class="threat-count" style="color:var(--red);" id="th-bots">—</div></div>
+            <div class="threat-item"><div><div class="threat-label">Honeypot triggered</div></div><div class="threat-count" style="color:var(--yellow);" id="th-honey">—</div></div>
+          </div>
+        </div>
+        <div class="chart-card" style="margin-bottom:0;">
+          <div class="chart-card-header">
+            <div class="chart-card-title">Attack Map</div>
+          </div>
+          <div class="world-map">
+            <div class="map-dots" id="map-dots"></div>
+            <div class="map-label">Real-time bot origin map</div>
+            <div style="font-size:12px;color:var(--muted);z-index:1;">Country data from IP geolocation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THREATS PAGE -->
+    <div class="page" id="page-threats">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Threats</div>
+          <div class="page-sub">Detailed breakdown of what's attacking you</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title" style="margin-bottom:20px;">Active Threat Types</div>
+        <div id="threats-list"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- SUBMISSIONS PAGE -->
+    <div class="page" id="page-submissions">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Submissions</div>
+          <div class="page-sub">All recent verification attempts</div>
+        </div>
+        <div class="header-right">
+          <select class="site-selector" id="filter-verdict" onchange="loadSubmissions()">
+            <option value="">All verdicts</option>
+            <option value="human">Human only</option>
+            <option value="suspicious">Suspicious</option>
+            <option value="bot">Bots only</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Score</th>
+                <th>Verdict</th>
+                <th>Fill Time</th>
+                <th>Mouse Events</th>
+                <th>Honeypot</th>
+                <th>User Agent</th>
+              </tr>
+            </thead>
+            <tbody id="sub-table"><tr><td colspan="7" class="loading"><div class="spinner"></div>Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOT PATTERNS PAGE -->
+    <div class="page" id="page-patterns">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Bot Patterns</div>
+          <div class="page-sub">Learned automatically every 10 minutes</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <p style="font-size:14px;color:var(--muted);margin-bottom:20px;">
+          SilentShield analyzes bot traffic every 10 minutes and automatically updates these patterns.
+          Higher confidence = more certain this pattern indicates a bot.
+        </p>
+        <div id="patterns-list"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- KEYS PAGE -->
+    <div class="page" id="page-keys">
+      <div class="page-header">
+        <div>
+          <div class="page-title">API Keys</div>
+          <div class="page-sub">Use these to integrate SilentShield into your site</div>
+        </div>
+      </div>
+      <div class="key-card">
+        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Your Site</div>
+        <div class="key-row">
+          <div class="key-label">Domain</div>
+          <div class="key-val" id="k-domain">—</div>
+        </div>
+        <div class="key-row">
+          <div class="key-label">Plan</div>
+          <div class="key-val" id="k-plan">free</div>
+        </div>
+        <div class="key-row">
+          <div class="key-label">Monthly</div>
+          <div class="key-val" id="k-usage">—</div>
+        </div>
+      </div>
+      <div class="key-card">
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Public Key</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Use in your HTML/JS — safe to expose publicly</div>
+        <div class="key-row">
+          <div class="key-val" id="k-public">—</div>
+          <button class="copy-btn" onclick="copyKey('k-public')">Copy</button>
+        </div>
+        <div style="margin-top:16px;background:var(--bg);border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;border:1px solid var(--border);">
+          &lt;script src="https://cdn.silentshield.io/v1/sdk.js"<br/>
+          &nbsp;&nbsp;data-silentshield-key="<span id="k-public-inline" style="color:var(--green);">YOUR_KEY</span>"&gt;&lt;/script&gt;
+        </div>
+      </div>
+      <div class="key-card">
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Secret Key</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Server-side only — never expose in browser code</div>
+        <div class="key-row">
+          <div class="key-val" id="k-secret" style="filter:blur(4px);transition:filter .2s;">sk_●●●●●●●●●●●●</div>
+          <button class="copy-btn" onclick="revealKey()">Reveal</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+let SECRET_KEY = '';
+let siteData = null;
+
+async function enterDashboard() {
+  const key = document.getElementById('gate-key').value.trim();
+  if (!key) return;
+
+  try {
+    const res = await fetch('/api/analytics/overview', { headers: { 'x-secret-key': key } });
+    if (!res.ok) throw new Error('Invalid key');
+    const data = await res.json();
+    SECRET_KEY = key;
+    siteData = data;
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('site-domain').textContent = data.site.domain;
+    document.getElementById('k-domain').textContent = data.site.domain;
+    document.getElementById('k-plan').textContent = data.site.plan;
+    document.getElementById('k-usage').textContent = `${(data.site.monthly_requests || 0).toLocaleString()} / ${(data.site.monthly_limit || 50000).toLocaleString()} requests this month`;
+    loadAll();
+    setInterval(loadAll, 30000);
+  } catch(e) {
+    const err = document.getElementById('gate-error');
+    err.style.display = 'block';
+    err.textContent = 'Invalid secret key. Check your key and try again.';
+  }
+}
+
+document.getElementById('gate-key').addEventListener('keydown', e => { if (e.key === 'Enter') enterDashboard(); });
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'submissions') loadSubmissions();
+  if (name === 'patterns') loadPatterns();
+  if (name === 'keys') loadKeys();
+  if (name === 'threats') loadThreats();
+}
+
+async function loadAll() {
+  try {
+    const res = await fetch('/api/analytics/overview', { headers: { 'x-secret-key': SECRET_KEY } });
+    const data = await res.json();
+    siteData = data;
+
+    const t = data.today || {};
+    document.getElementById('s-total').textContent = (t.total || 0).toLocaleString();
+    document.getElementById('s-passed').textContent = (t.passed || 0).toLocaleString();
+    document.getElementById('s-blocked').textContent = (t.blocked || 0).toLocaleString();
+    document.getElementById('s-score').textContent = t.avg_score ? Math.round(t.avg_score) : '—';
+    const blockRate = t.total > 0 ? Math.round((t.blocked / t.total) * 100) : 0;
+    document.getElementById('s-block-rate').textContent = `${blockRate}% block rate`;
+
+    const threats = data.threats || {};
+    document.getElementById('th-spam').textContent = (threats.spam || 0).toLocaleString();
+    document.getElementById('th-bots').textContent = (threats.bot_submissions || 0).toLocaleString();
+    document.getElementById('th-honey').textContent = (threats.honeypot || 0).toLocaleString();
+
+    renderWeekChart(data.week || []);
+    renderMapDots();
+  } catch(e) { console.error(e); }
+}
+
+function renderWeekChart(week) {
+  const chart = document.getElementById('week-chart');
+  if (!week || week.length === 0) { chart.innerHTML = '<div class="empty"><div class="empty-icon">📊</div>No data yet</div>'; return; }
+
+  const maxTotal = Math.max(...week.map(d => d.total), 1);
+  chart.innerHTML = '';
+  week.slice(-7).forEach(d => {
+    const pct = d.total / maxTotal;
+    const blockedPct = d.blocked / maxTotal;
+    const label = d.date ? d.date.slice(5) : '—';
+    const group = document.createElement('div');
+    group.className = 'bar-group';
+    group.innerHTML = `
+      <div class="bar-wrap">
+        <div class="bar" style="height:${Math.round(pct*100)}%;background:var(--blue);opacity:.6;"></div>
+        <div class="bar" style="height:${Math.round(blockedPct*100)}%;background:var(--red);"></div>
+      </div>
+      <div class="bar-label">${label}</div>`;
+    chart.appendChild(group);
+  });
+}
+
+function renderMapDots() {
+  const dots = document.getElementById('map-dots');
+  if (!dots) return;
+  // Animated dots at approximate world regions
+  const locations = [
+    {x:'15%',y:'35%',label:'EU'},{x:'30%',y:'25%',label:'US'},{x:'70%',y:'30%',label:'KR'},
+    {x:'65%',y:'28%',label:'JP'},{x:'72%',y:'45%',label:'SG'},{x:'60%',y:'20%',label:'RU'},
+    {x:'55%',y:'40%',label:'IN'},{x:'20%',y:'55%',label:'BR'},
+  ];
+  dots.innerHTML = locations.map((l, i) => `
+    <div class="map-dot" style="left:${l.x};top:${l.y};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-delay:${i*0.3}s;" title="${l.label}"></div>
+  `).join('');
+}
+
+async function loadSubmissions() {
+  const tbody = document.getElementById('sub-table');
+  tbody.innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Loading...</div></td></tr>';
+  try {
+    const res = await fetch('/api/analytics/recent?limit=50', { headers: { 'x-secret-key': SECRET_KEY } });
+    const data = await res.json();
+    const rows = data.submissions || [];
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">✅</div>No submissions yet</div></td></tr>'; return; }
+
+    tbody.innerHTML = rows.map(r => {
+      const vc = r.verdict === 'human' ? 'v-human' : r.verdict === 'bot' ? 'v-bot' : 'v-suspicious';
+      const color = r.score >= 70 ? 'var(--green)' : r.score >= 45 ? 'var(--yellow)' : 'var(--red)';
+      const ua = r.user_agent ? r.user_agent.slice(0, 40) + (r.user_agent.length > 40 ? '…' : '') : '—';
+      const ts = r.timestamp ? new Date(r.timestamp).toLocaleTimeString() : '—';
+      return `<tr>
+        <td style="color:var(--muted);font-size:12px;">${ts}</td>
+        <td>
+          <div class="score-mini">
+            <span style="font-weight:700;color:${color};">${r.score}</span>
+            <div class="score-mini-bar"><div class="score-mini-fill" style="width:${r.score}%;background:${color};"></div></div>
+          </div>
+        </td>
+        <td><span class="verdict-badge ${vc}">${r.verdict}</span></td>
+        <td style="color:var(--muted);">${r.form_fill_ms ? (r.form_fill_ms/1000).toFixed(1)+'s' : '—'}</td>
+        <td style="color:var(--muted);">${r.mouse_events || 0}</td>
+        <td>${r.honeypot_triggered ? '<span style="color:var(--red);">⚠ Yes</span>' : '<span style="color:var(--green);">No</span>'}</td>
+        <td style="color:var(--muted);font-size:12px;font-family:\'JetBrains Mono\',monospace;">${ua}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--red);padding:16px;">Error loading data</td></tr>'; }
+}
+
+async function loadPatterns() {
+  const el = document.getElementById('patterns-list');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+  try {
+    const res = await fetch('/api/analytics/patterns', { headers: { 'x-secret-key': SECRET_KEY } });
+    const data = await res.json();
+    const patterns = data.patterns || [];
+    if (!patterns.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🧠</div>No patterns learned yet. More data needed.</div>'; return; }
+
+    el.innerHTML = patterns.map(p => {
+      const typeClass = p.pattern_type === 'user_agent' ? 'pt-ua' : p.pattern_type === 'timing' ? 'pt-timing' : 'pt-behavior';
+      const conf = Math.round(p.confidence * 100);
+      const confColor = conf > 80 ? 'var(--red)' : conf > 60 ? 'var(--yellow)' : 'var(--muted)';
+      return `<div class="pattern-row">
+        <span class="pattern-type ${typeClass}">${p.pattern_type}</span>
+        <span class="pattern-val">${p.pattern_value}</span>
+        <span style="color:var(--red);font-weight:700;min-width:40px;">${p.score_adjustment}</span>
+        <span class="pattern-conf">${p.hit_count} hits</span>
+        <span style="color:${confColor};font-weight:600;min-width:50px;text-align:right;">${conf}%</span>
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = '<div style="color:var(--red);">Error loading patterns</div>'; }
+}
+
+async function loadThreats() {
+  const el = document.getElementById('threats-list');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+  try {
+    const res = await fetch('/api/analytics/overview', { headers: { 'x-secret-key': SECRET_KEY } });
+    const data = await res.json();
+    const t = data.threats || {};
+    const total = Math.max(t.bot_submissions || 1, 1);
+    const items = [
+      { label: 'Bot form submissions', count: t.bot_submissions || 0, color: 'var(--red)' },
+      { label: 'Spam content detected', count: t.spam || 0, color: 'var(--red)' },
+      { label: 'Honeypot triggered', count: t.honeypot || 0, color: 'var(--yellow)' },
+    ];
+    el.innerHTML = items.map(item => `
+      <div class="threat-item">
+        <div style="flex:1;">
+          <div class="threat-label">${item.label}</div>
+          <div class="threat-bar" style="max-width:300px;margin-top:6px;">
+            <div class="threat-bar-fill" style="width:${Math.round((item.count/total)*100)}%;background:${item.color};"></div>
+          </div>
+        </div>
+        <div class="threat-count" style="color:${item.color};">${item.count.toLocaleString()}</div>
+      </div>
+    `).join('');
+  } catch(e) { el.innerHTML = '<div style="color:var(--red);">Error loading threats</div>'; }
+}
+
+async function loadKeys() {
+  if (!siteData) return;
+  // We don't store the actual keys in the overview response for security
+  // Show what we know from siteData
+  document.getElementById('k-usage').textContent =
+    `${(siteData.site.monthly_requests || 0).toLocaleString()} / ${(siteData.site.monthly_limit || 50000).toLocaleString()} requests this month`;
+}
+
+function revealKey() {
+  const el = document.getElementById('k-secret');
+  el.style.filter = '';
+  el.textContent = SECRET_KEY;
+}
+
+function copyKey(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.currentTarget;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+// Allow Enter on gate
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('gate').style.display !== 'none') enterDashboard();
+});
+</script>
+</body>
+</html>

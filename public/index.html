@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SilentShield — Invisible Bot Protection</title>
+  <meta name="description" content="Stop bots without annoying your users. No CAPTCHAs. No puzzles. 30-second setup. Free forever up to 50,000 requests/month." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080b14;
+      --surface: #0d1220;
+      --surface2: #111827;
+      --border: rgba(99,102,241,0.15);
+      --purple: #7c3aed;
+      --purple-light: #a78bfa;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --red: #ef4444;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --code-bg: #0a0f1e;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      background: rgba(8,11,20,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+    .logo span { color: var(--purple-light); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--purple); color: #fff; border: none;
+      padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      cursor: pointer; text-decoration: none; transition: all .2s;
+    }
+    .nav-cta:hover { background: #6d28d9; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 120px 24px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, rgba(124,58,237,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 200px;
+      background: linear-gradient(to bottom, transparent, var(--bg));
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
+      color: var(--purple-light); font-size: 13px; font-weight: 500;
+      padding: 6px 14px; border-radius: 100px; margin-bottom: 24px;
+    }
+    .badge-dot { width: 6px; height: 6px; background: var(--purple-light); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+
+    h1 {
+      font-size: clamp(42px, 7vw, 88px);
+      font-weight: 900; line-height: 1.05;
+      letter-spacing: -3px; margin-bottom: 24px;
+    }
+    h1 .gradient {
+      background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 20px); color: var(--muted);
+      max-width: 580px; margin: 0 auto 40px; font-weight: 400;
+    }
+
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), var(--blue));
+      color: #fff; padding: 14px 32px; border-radius: 10px;
+      font-size: 16px; font-weight: 600; text-decoration: none;
+      transition: all .2s; display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 0 40px rgba(124,58,237,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(124,58,237,0.5); }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border); padding: 14px 32px; border-radius: 10px;
+      font-size: 16px; font-weight: 600; text-decoration: none;
+      transition: all .2s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.05); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: flex; gap: 48px; justify-content: center; flex-wrap: wrap;
+      padding: 40px 24px;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 36px; font-weight: 800; color: var(--purple-light); letter-spacing: -1px; }
+    .stat-label { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+    /* ── HOW IT WORKS ── */
+    .section { padding: 100px 24px; max-width: 1200px; margin: 0 auto; }
+    .section-label { font-size: 13px; font-weight: 600; color: var(--purple-light); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+    .section-title { font-size: clamp(28px, 4vw, 48px); font-weight: 800; letter-spacing: -1.5px; margin-bottom: 16px; }
+    .section-sub { font-size: 18px; color: var(--muted); max-width: 560px; }
+
+    .flow-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-top: 60px; }
+    .flow-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px; position: relative; overflow: hidden;
+      transition: border-color .2s, transform .2s;
+    }
+    .flow-card:hover { border-color: rgba(124,58,237,0.4); transform: translateY(-4px); }
+    .flow-card::before {
+      content: attr(data-step);
+      position: absolute; top: -10px; right: 20px;
+      font-size: 80px; font-weight: 900; color: rgba(124,58,237,0.07);
+      line-height: 1; pointer-events: none;
+    }
+    .flow-icon { font-size: 28px; margin-bottom: 16px; }
+    .flow-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .flow-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .score-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 13px; }
+    .score-badge { padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+    .score-plus { background: rgba(16,185,129,0.15); color: var(--green); }
+    .score-minus { background: rgba(239,68,68,0.15); color: var(--red); }
+
+    /* ── CODE SECTION ── */
+    .code-section {
+      padding: 100px 24px;
+      background: var(--surface);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .code-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    @media (max-width: 768px) { .code-inner { grid-template-columns: 1fr; } }
+
+    .code-block {
+      background: var(--code-bg); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; gap: 8px; padding: 14px 18px;
+      border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02);
+    }
+    .code-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .code-title { font-size: 13px; color: var(--muted); margin-left: 8px; font-family: 'JetBrains Mono', monospace; }
+    pre { padding: 24px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.8; overflow-x: auto; }
+    .kw { color: #c792ea; }
+    .fn { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .cm { color: #546e7a; }
+    .num { color: #f78c6c; }
+    .tag { color: #f07178; }
+    .attr { color: #ffcb6b; }
+
+    /* ── FEATURES ── */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 60px; }
+    .feature-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; transition: all .2s;
+    }
+    .feature-card:hover { border-color: rgba(124,58,237,0.4); background: var(--surface2); }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 20px;
+    }
+    .icon-purple { background: rgba(124,58,237,0.15); }
+    .icon-blue { background: rgba(59,130,246,0.15); }
+    .icon-green { background: rgba(16,185,129,0.15); }
+    .icon-red { background: rgba(239,68,68,0.15); }
+    .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+    /* ── DASHBOARD PREVIEW ── */
+    .dashboard-preview {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 24px; margin-top: 60px; overflow: hidden;
+    }
+    .db-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .db-title { font-size: 16px; font-weight: 700; }
+    .db-badge { padding: 4px 10px; background: rgba(16,185,129,0.15); color: var(--green); border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .db-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .db-stat { background: var(--bg); border-radius: 12px; padding: 20px; text-align: center; }
+    .db-stat-num { font-size: 28px; font-weight: 800; }
+    .db-stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .db-bar { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+    .db-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+    .threat-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .threat-row:last-child { border-bottom: none; }
+
+    /* ── PRICING ── */
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 60px; max-width: 900px; margin-left: auto; margin-right: auto; }
+    .pricing-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 36px; position: relative;
+    }
+    .pricing-card.featured {
+      border-color: var(--purple);
+      background: linear-gradient(135deg, rgba(124,58,237,0.08), var(--surface));
+    }
+    .plan-label { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .plan-price { font-size: 48px; font-weight: 900; letter-spacing: -2px; }
+    .plan-price span { font-size: 20px; font-weight: 400; color: var(--muted); }
+    .plan-features { list-style: none; margin: 28px 0; display: flex; flex-direction: column; gap: 12px; }
+    .plan-features li { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+    .check { color: var(--green); font-weight: 700; }
+    .plan-cta { width: 100%; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all .2s; }
+    .plan-cta.free { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .plan-cta.free:hover { background: var(--surface); }
+    .plan-cta.pro { background: linear-gradient(135deg, var(--purple), var(--blue)); color: #fff; }
+    .plan-cta.pro:hover { opacity: .9; transform: translateY(-1px); }
+    .popular-tag {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--purple); color: #fff; font-size: 12px; font-weight: 700;
+      padding: 4px 16px; border-radius: 20px; white-space: nowrap;
+    }
+
+    /* ── GET STARTED ── */
+    .get-started {
+      background: var(--surface);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .get-started-inner { max-width: 800px; margin: 0 auto; padding: 100px 24px; text-align: center; }
+    .steps { display: flex; flex-direction: column; gap: 24px; margin: 60px 0; text-align: left; }
+    .step { display: flex; align-items: flex-start; gap: 20px; }
+    .step-num { min-width: 36px; height: 36px; border-radius: 8px; background: var(--purple); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .step-content h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .step-content p { font-size: 14px; color: var(--muted); }
+    .step-code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-top: 10px; overflow-x: auto; }
+
+    /* ── REGISTER FORM ── */
+    #register {
+      max-width: 480px; margin: 0 auto;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px;
+    }
+    #register h3 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+    #register p { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .form-group input {
+      width: 100%; padding: 12px 16px; border-radius: 8px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); font-size: 15px; outline: none; transition: border-color .2s;
+      font-family: inherit;
+    }
+    .form-group input:focus { border-color: var(--purple); }
+    .form-submit {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, var(--purple), var(--blue));
+      color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all .2s; margin-top: 8px;
+    }
+    .form-submit:hover { opacity: .9; transform: translateY(-1px); }
+    #reg-result {
+      margin-top: 20px; padding: 20px; border-radius: 10px;
+      background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
+      display: none; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.8;
+    }
+    #reg-result.error { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 48px 24px; text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    footer .logo { margin-bottom: 12px; display: block; }
+    footer p { font-size: 14px; color: var(--muted); }
+    footer a { color: var(--purple-light); text-decoration: none; }
+
+    /* ── ANIMATIONS ── */
+    .animate-in { opacity: 0; transform: translateY(24px); transition: opacity .6s, transform .6s; }
+    .animate-in.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .db-stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Silent<span>Shield</span></div>
+    <ul class="nav-links">
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="/dashboard">Dashboard</a></li>
+      <li><a href="https://github.com/silentshield" target="_blank">GitHub</a></li>
+    </ul>
+    <a href="#get-started" class="nav-cta">Get Started Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">
+    <span class="badge-dot"></span>
+    Invisible Bot Protection — No CAPTCHAs Ever
+  </div>
+  <h1>Stop bots.<br /><span class="gradient">Not your users.</span></h1>
+  <p class="hero-sub">
+    SilentShield detects bots using behavioral signals — no puzzles, no friction, no third-party tracking.
+    Free up to 50,000 requests/month. Setup takes 30 seconds.
+  </p>
+  <div class="hero-buttons">
+    <a href="#get-started" class="btn-primary">
+      ⚡ Start for Free
+    </a>
+    <a href="https://github.com/silentshield/silentshield-js" class="btn-secondary" target="_blank">
+      ★ View on GitHub
+    </a>
+  </div>
+
+  <!-- Live demo scores -->
+  <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 24px;font-size:14px;min-width:200px;">
+      <div style="color:var(--muted);margin-bottom:8px;font-size:12px;">YOUR SESSION SCORE</div>
+      <div id="live-score" style="font-size:36px;font-weight:900;color:var(--green);">—</div>
+      <div id="live-verdict" style="font-size:13px;color:var(--muted);margin-top:4px;">Analyzing...</div>
+      <div style="margin-top:12px;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;">
+        <div id="score-bar" style="height:100%;background:var(--green);border-radius:3px;width:0%;transition:width 1s;"></div>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 24px;font-size:14px;min-width:200px;">
+      <div style="color:var(--muted);margin-bottom:8px;font-size:12px;">VS CAPTCHA</div>
+      <div style="font-size:13px;display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+        <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red);">✗</span> 3–15 second interruption</div>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red);">✗</span> 30% user drop-off</div>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red);">✗</span> Google tracks your users</div>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--green);">✓</span> SilentShield: 0 friction</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num" data-target="50000">0</div><div class="stat-label">Free monthly requests</div></div>
+  <div class="stat"><div class="stat-num" data-target="99" data-suffix="%">0</div><div class="stat-label">Bot detection accuracy</div></div>
+  <div class="stat"><div class="stat-num" data-target="30" data-suffix="s">0</div><div class="stat-label">Integration time</div></div>
+  <div class="stat"><div class="stat-num" data-target="0">0</div><div class="stat-label">CAPTCHAs shown to users</div></div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section animate-in" id="how-it-works">
+  <div class="section-label">How it works</div>
+  <div class="section-title">Five layers of invisible detection</div>
+  <p class="section-sub">Every visitor is silently scored in real-time. Humans pass instantly. Bots get blocked — or silently fed fake success.</p>
+  <div class="flow-grid" style="margin-top:60px;">
+    <div class="flow-card" data-step="1">
+      <div class="flow-icon">👁️</div>
+      <h3>Page Entry</h3>
+      <p>We record when the user enters, their browser fingerprint, screen size, and hardware concurrency — headless browsers stand out immediately.</p>
+      <div style="margin-top:14px;">
+        <div class="score-row"><span class="score-badge score-plus">+10</span> Real browser detected</div>
+        <div class="score-row"><span class="score-badge score-minus">-40</span> Headless Chrome</div>
+        <div class="score-row"><span class="score-badge score-minus">-50</span> WebDriver flag set</div>
+      </div>
+    </div>
+    <div class="flow-card" data-step="2">
+      <div class="flow-icon">🖱️</div>
+      <h3>Behavior Score</h3>
+      <p>Humans move mice, scroll, and click. Bots jump straight to submit. We track every interaction event without affecting performance.</p>
+      <div style="margin-top:14px;">
+        <div class="score-row"><span class="score-badge score-plus">+20</span> Mouse movement detected</div>
+        <div class="score-row"><span class="score-badge score-plus">+10</span> Scroll events</div>
+        <div class="score-row"><span class="score-badge score-minus">-25</span> No mouse, no scroll</div>
+      </div>
+    </div>
+    <div class="flow-card" data-step="3">
+      <div class="flow-icon">⌨️</div>
+      <h3>Input Score</h3>
+      <p>Humans type with natural variance and rhythm. Bots fill forms in milliseconds with machine-perfect timing. We detect both.</p>
+      <div style="margin-top:14px;">
+        <div class="score-row"><span class="score-badge score-plus">+20</span> Natural typing speed</div>
+        <div class="score-row"><span class="score-badge score-plus">+5</span> Backspacing (mistakes)</div>
+        <div class="score-row"><span class="score-badge score-minus">-40</span> Form filled in &lt;500ms</div>
+      </div>
+    </div>
+    <div class="flow-card" data-step="4">
+      <div class="flow-icon">🌐</div>
+      <h3>Environment Score</h3>
+      <p>Cloud IPs, datacenter subnets, and unusual environments are weighted. Real users browse from home and mobile networks.</p>
+      <div style="margin-top:14px;">
+        <div class="score-row"><span class="score-badge score-plus">+8</span> Normal screen size</div>
+        <div class="score-row"><span class="score-badge score-plus">+7</span> Browser plugins present</div>
+        <div class="score-row"><span class="score-badge score-minus">-30</span> AWS/GCP/Azure IP</div>
+      </div>
+    </div>
+    <div class="flow-card" data-step="5">
+      <div class="flow-icon">🎯</div>
+      <h3>Final Score</h3>
+      <p>All signals combine into a 0–100 score. Humans pass transparently. Bots are blocked — or shown a fake success message to waste their time.</p>
+      <div style="margin-top:14px;">
+        <div class="score-row"><span class="score-badge score-plus">70–100</span> Human — pass</div>
+        <div class="score-row"><span style="padding:2px 8px;border-radius:4px;font-weight:600;font-size:11px;background:rgba(245,158,11,0.15);color:#f59e0b;">45–69</span> Suspicious — flag</div>
+        <div class="score-row"><span class="score-badge score-minus">0–44</span> Bot — block</div>
+      </div>
+    </div>
+    <div class="flow-card" data-step="🤖">
+      <div class="flow-icon">🧠</div>
+      <h3>AI Learning</h3>
+      <p>Every 10 minutes, SilentShield analyzes recent bot attempts and automatically updates detection patterns — it learns what the bots do.</p>
+      <div style="margin-top:14px;">
+        <div class="score-row"><span class="score-badge score-plus">+auto</span> New bot UA learned</div>
+        <div class="score-row"><span class="score-badge score-plus">+auto</span> Timing patterns updated</div>
+        <div class="score-row"><span class="score-badge score-plus">+auto</span> Confidence scores refined</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE -->
+<div class="code-section animate-in">
+  <div class="code-inner">
+    <div>
+      <div class="section-label">Integration</div>
+      <div class="section-title" style="font-size:clamp(24px,3.5vw,40px);">Works in 2 lines of code</div>
+      <p class="section-sub" style="font-size:16px;">Drop the script tag, add <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px;">data-silentshield</code> to your form. Done.</p>
+      <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;font-size:15px;">
+          <span style="color:var(--green);font-size:20px;">✓</span> No CAPTCHA widgets to render
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:15px;">
+          <span style="color:var(--green);font-size:20px;">✓</span> No Google reCAPTCHA dependencies
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:15px;">
+          <span style="color:var(--green);font-size:20px;">✓</span> Works with any HTML form
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:15px;">
+          <span style="color:var(--green);font-size:20px;">✓</span> Server-side verification in 1 API call
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dot" style="background:#ff5f57;"></div>
+          <div class="code-dot" style="background:#febc2e;"></div>
+          <div class="code-dot" style="background:#28c840;"></div>
+          <div class="code-title">index.html</div>
+        </div>
+        <pre><span class="cm">&lt;!-- Step 1: Add the script --&gt;</span>
+<span class="tag">&lt;script</span>
+  <span class="attr">src</span>=<span class="str">"https://cdn.silentshield.io/v1/sdk.js"</span>
+  <span class="attr">data-silentshield-key</span>=<span class="str">"pk_your_key"</span>
+<span class="tag">&gt;&lt;/script&gt;</span>
+
+<span class="cm">&lt;!-- Step 2: Tag your form --&gt;</span>
+<span class="tag">&lt;form</span> <span class="attr">data-silentshield</span> <span class="attr">action</span>=<span class="str">"/submit"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="str">"text"</span> <span class="attr">name</span>=<span class="str">"name"</span> <span class="tag">/&gt;</span>
+  <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="str">"submit"</span><span class="tag">&gt;</span>Send<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span></pre>
+      </div>
+      <div class="code-block" style="margin-top:16px;">
+        <div class="code-header">
+          <div class="code-dot" style="background:#ff5f57;"></div>
+          <div class="code-dot" style="background:#febc2e;"></div>
+          <div class="code-dot" style="background:#28c840;"></div>
+          <div class="code-title">server.js — verify on your backend</div>
+        </div>
+        <pre><span class="kw">const</span> <span class="fn">res</span> = <span class="kw">await</span> fetch(
+  <span class="str">'https://api.silentshield.io/api/verify'</span>,
+  {
+    method: <span class="str">'POST'</span>,
+    headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+    body: JSON.stringify({
+      token: req.body._ss_token,
+      secret: <span class="str">'sk_your_secret'</span>
+    })
+  }
+);
+
+<span class="kw">const</span> { valid, score, verdict } = <span class="kw">await</span> res.json();
+<span class="cm">// { valid: true, score: 92, verdict: 'human' }</span>
+
+<span class="kw">if</span> (!valid) <span class="kw">return</span> res.status(<span class="num">403</span>).send(<span class="str">'Bot detected'</span>);</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section animate-in" id="features">
+  <div class="section-label">Features</div>
+  <div class="section-title">Everything you need to stop bots</div>
+  <p class="section-sub">Built for developers who want protection without the headache.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon icon-purple">🕵️</div>
+      <h3>Fake Success Mode</h3>
+      <p>When a bot is blocked, we show it "Successfully submitted!" — it never knows it failed. Bots waste time retrying while your data stays clean.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-blue">🍯</div>
+      <h3>Smart Honeypot</h3>
+      <p>Hidden fields are generated with randomized names like <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">phone2</code>, <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">contact_alt</code> — rotated so bots can't learn to skip them.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-green">🧠</div>
+      <h3>10-Minute Learning</h3>
+      <p>Every 10 minutes, the system analyzes recent bot patterns and updates its detection weights automatically. It gets smarter the more it sees.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-red">🚫</div>
+      <h3>AI Spam Filter</h3>
+      <p>Form submissions are scanned for spam keywords — SEO offers, crypto investment, backlink deals — and auto-blocked at the content level.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-purple">🤖</div>
+      <h3>AI Agent Detection</h3>
+      <p>Detects Playwright, Puppeteer, Selenium, Browser Use, and OpenAI Operator-style agents via WebDriver flags, timing patterns, and environment checks.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-blue">📊</div>
+      <h3>Real-time Dashboard</h3>
+      <p>See live traffic, blocked bots, threat types, and country breakdowns. Visualize exactly what SilentShield is stopping for you.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-green">🔑</div>
+      <h3>No API Key Required*</h3>
+      <p>The free tier works without registration. Add your domain for analytics and to track monthly usage. *Anonymous mode available for quick testing.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-red">🔒</div>
+      <h3>Privacy First</h3>
+      <p>No cookies set. No user data sold. IPs are hashed. No Google dependencies. GDPR-friendly by design — your users are yours.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-purple">🌍</div>
+      <h3>Open Source SDK</h3>
+      <p>The JS SDK is MIT licensed and on GitHub. Inspect every line of code running on your users' browsers. No black boxes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD PREVIEW -->
+<section class="section animate-in">
+  <div class="section-label">Dashboard</div>
+  <div class="section-title">Watch threats in real-time</div>
+  <p class="section-sub">Your personal ops center — see exactly what's hitting your forms and what's being stopped.</p>
+  <div class="dashboard-preview">
+    <div class="db-header">
+      <div class="db-title">SilentShield Dashboard</div>
+      <div class="db-badge">● Live</div>
+      <div style="margin-left:auto;font-size:13px;color:var(--muted);">Last 24 hours</div>
+    </div>
+    <div class="db-stats">
+      <div class="db-stat">
+        <div class="db-stat-num" style="color:var(--text);" id="demo-visits">1,243</div>
+        <div class="db-stat-label">Total visits</div>
+      </div>
+      <div class="db-stat">
+        <div class="db-stat-num" style="color:var(--green);" id="demo-passed">858</div>
+        <div class="db-stat-label">Humans passed</div>
+      </div>
+      <div class="db-stat">
+        <div class="db-stat-num" style="color:var(--red);" id="demo-blocked">385</div>
+        <div class="db-stat-label">Bots blocked</div>
+      </div>
+    </div>
+    <div style="margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;">
+        <span>Bot block rate</span>
+        <span id="demo-rate" style="color:var(--red);">31%</span>
+      </div>
+      <div class="db-bar"><div class="db-bar-fill" style="background:var(--red);" id="demo-bar" data-width="31"></div></div>
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--muted);">THREAT BREAKDOWN — TODAY</div>
+      <div class="threat-row">
+        <span>Form spam</span>
+        <span id="t1" style="color:var(--red);">183</span>
+      </div>
+      <div class="threat-row">
+        <span>Bot submissions</span>
+        <span id="t2" style="color:var(--red);">92</span>
+      </div>
+      <div class="threat-row">
+        <span>Honeypot triggered</span>
+        <span id="t3" style="color:var(--red);">67</span>
+      </div>
+      <div class="threat-row">
+        <span>AI agent (Playwright/Puppeteer)</span>
+        <span id="t4" style="color:var(--red);">33</span>
+      </div>
+      <div class="threat-row">
+        <span>Datacenter IPs blocked</span>
+        <span id="t5" style="color:var(--red);">44</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section animate-in" id="pricing" style="text-align:center;">
+  <div class="section-label">Pricing</div>
+  <div class="section-title">Free to start. Forever.</div>
+  <p class="section-sub" style="margin:0 auto;">No credit card. No trial period. The free plan is genuinely free.</p>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-label">Free</div>
+      <div class="plan-price">$0<span>/mo</span></div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> 50,000 requests/month</li>
+        <li><span class="check">✓</span> Unlimited sites</li>
+        <li><span class="check">✓</span> Bot detection</li>
+        <li><span class="check">✓</span> Fake success mode</li>
+        <li><span class="check">✓</span> Smart honeypot</li>
+        <li><span class="check">✓</span> 7-day analytics</li>
+        <li><span class="check">✓</span> No API key required</li>
+      </ul>
+      <button class="plan-cta free" onclick="document.getElementById('get-started').scrollIntoView({behavior:'smooth'})">
+        Get Started Free
+      </button>
+    </div>
+    <div class="pricing-card featured">
+      <div class="popular-tag">Most Popular</div>
+      <div class="plan-label">Pro</div>
+      <div class="plan-price">$9<span>/mo</span></div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> 500,000 requests/month</li>
+        <li><span class="check">✓</span> Unlimited sites</li>
+        <li><span class="check">✓</span> Everything in Free</li>
+        <li><span class="check">✓</span> AI spam filter</li>
+        <li><span class="check">✓</span> AI agent detection</li>
+        <li><span class="check">✓</span> 90-day analytics</li>
+        <li><span class="check">✓</span> Attack map</li>
+        <li><span class="check">✓</span> Webhook alerts</li>
+        <li><span class="check">✓</span> Priority support</li>
+      </ul>
+      <button class="plan-cta pro" onclick="document.getElementById('get-started').scrollIntoView({behavior:'smooth'})">
+        Start Pro Trial
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- GET STARTED -->
+<div class="get-started animate-in" id="get-started">
+  <div class="get-started-inner">
+    <div class="section-label" style="text-align:center;">Quick Start</div>
+    <div class="section-title" style="text-align:center;">Live in 30 seconds</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Register your site (optional for free tier)</h4>
+          <p>Enter your domain below to get API keys and enable the analytics dashboard.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Add the script tag to your HTML</h4>
+          <div class="step-code">&lt;script src="https://cdn.silentshield.io/v1/sdk.js" data-silentshield-key="YOUR_PUBLIC_KEY"&gt;&lt;/script&gt;</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Tag your form</h4>
+          <div class="step-code">&lt;form data-silentshield action="/submit" method="POST"&gt;</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Verify on your server</h4>
+          <div class="step-code">POST https://api.silentshield.io/api/verify<br/>{ "token": req.body._ss_token, "secret": "YOUR_SECRET" }</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="register">
+      <h3>Get your free API keys</h3>
+      <p>Takes 5 seconds. No email required.</p>
+      <form id="reg-form" onsubmit="registerSite(event)">
+        <div class="form-group">
+          <label for="reg-domain">Your domain</label>
+          <input type="text" id="reg-domain" placeholder="mysite.com" required />
+        </div>
+        <div class="form-group">
+          <label for="reg-name">Site name (optional)</label>
+          <input type="text" id="reg-name" placeholder="My Awesome Project" />
+        </div>
+        <button type="submit" class="form-submit">⚡ Generate API Keys</button>
+      </form>
+      <div id="reg-result"></div>
+    </div>
+
+    <div style="margin-top:48px;text-align:center;">
+      <p style="color:var(--muted);font-size:14px;margin-bottom:16px;">Or install via npm:</p>
+      <div class="step-code" style="display:inline-block;padding:12px 24px;">npm install @silentshield/js</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">Silent<span style="color:var(--purple-light);">Shield</span></div>
+  <p style="margin-top:8px;">
+    Open source · MIT License ·
+    <a href="https://github.com/silentshield/silentshield-js" target="_blank">GitHub</a> ·
+    <a href="https://www.npmjs.com/package/@silentshield/js" target="_blank">npm</a> ·
+    <a href="/dashboard">Dashboard</a>
+  </p>
+  <p style="margin-top:8px;font-size:13px;">Stop bots. Not your users.</p>
+</footer>
+
+<script>
+  // Live score demo
+  (function () {
+    let score = 50;
+    const el = document.getElementById('live-score');
+    const bar = document.getElementById('score-bar');
+    const verdict = document.getElementById('live-verdict');
+    let mouseCount = 0, scrollCount = 0;
+    const start = Date.now();
+
+    document.addEventListener('mousemove', () => mouseCount++);
+    document.addEventListener('scroll', () => scrollCount++);
+
+    setInterval(() => {
+      const timeOnPage = (Date.now() - start) / 1000;
+      let s = 50;
+      if (mouseCount > 10) s += 15;
+      if (scrollCount > 0) s += 10;
+      if (timeOnPage > 3) s += 10;
+      if (timeOnPage > 10) s += 5;
+      s = Math.min(100, s);
+
+      score = score + (s - score) * 0.3;
+      const rounded = Math.round(score);
+
+      el.textContent = rounded;
+      bar.style.width = rounded + '%';
+      bar.style.background = rounded >= 70 ? '#10b981' : rounded >= 45 ? '#f59e0b' : '#ef4444';
+      el.style.color = rounded >= 70 ? '#10b981' : rounded >= 45 ? '#f59e0b' : '#ef4444';
+      verdict.textContent = rounded >= 70 ? '✓ Human confirmed' : rounded >= 45 ? '⚠ Analyzing...' : '✗ Bot detected';
+    }, 800);
+  })();
+
+  // Counter animation
+  function animateCounters() {
+    document.querySelectorAll('[data-target]').forEach(el => {
+      const target = parseInt(el.dataset.target);
+      const suffix = el.dataset.suffix || '';
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current = Math.min(target, current + step);
+        el.textContent = (current >= 1000 ? Math.round(current).toLocaleString() : Math.round(current)) + suffix;
+        if (current >= target) clearInterval(timer);
+      }, 16);
+    });
+  }
+
+  // Demo dashboard live updates
+  function updateDashboard() {
+    const add = (id, base) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = (base + Math.floor(Math.random() * 5)).toLocaleString();
+    };
+    add('t1', 183); add('t2', 92); add('t3', 67); add('t4', 33); add('t5', 44);
+  }
+  setInterval(updateDashboard, 3000);
+
+  // Animate bar on load
+  setTimeout(() => {
+    const bar = document.getElementById('demo-bar');
+    if (bar) bar.style.width = bar.dataset.width + '%';
+  }, 500);
+
+  // Intersection observer for animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        if (e.target.querySelector('[data-target]')) animateCounters();
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+  document.querySelector('.stats-bar') && observer.observe(document.querySelector('.stats-bar'));
+
+  // Register form
+  async function registerSite(e) {
+    e.preventDefault();
+    const domain = document.getElementById('reg-domain').value.trim();
+    const name = document.getElementById('reg-name').value.trim();
+    const result = document.getElementById('reg-result');
+    const btn = document.querySelector('.form-submit');
+
+    btn.textContent = 'Registering...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain, name })
+      });
+      const data = await res.json();
+
+      result.style.display = 'block';
+      result.classList.remove('error');
+      result.innerHTML = `
+        <strong style="color:#10b981;">✓ Keys generated!</strong><br/><br/>
+        <strong>Public Key</strong> (use in SDK):<br/>
+        <code>${data.public_key}</code><br/><br/>
+        <strong>Secret Key</strong> (server-side only — keep private!):<br/>
+        <code>${data.secret_key}</code><br/><br/>
+        <em style="font-size:12px;color:#94a3b8;">Plan: ${data.plan} · ${(data.monthly_limit || 50000).toLocaleString()} req/month</em>
+      `;
+    } catch (err) {
+      result.style.display = 'block';
+      result.classList.add('error');
+      result.textContent = 'Registration failed. Make sure the server is running.';
+    }
+
+    btn.textContent = '⚡ Generate API Keys';
+    btn.disabled = false;
+  }
+</script>
+</body>
+</html>
