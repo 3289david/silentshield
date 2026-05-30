@@ -71,10 +71,10 @@
       ctx.textBaseline = 'alphabetic';
       ctx.font = '16px Arial';
       ctx.fillStyle = '#fff';
-      ctx.fillText('SilentShield ?썳 bot?', 4, 24);
+      ctx.fillText('SilentShield ✨ bot⚡', 4, 24);
       ctx.font = '13px Georgia';
       ctx.fillStyle = 'rgba(102,204,0,0.85)';
-      ctx.fillText('1l0O?꺝㈒졗?, 4, 48);
+      ctx.fillText('1l0OαβΒ♥é', 4, 48);
       // Layer 3: arc + bezier curve
       ctx.beginPath();
       ctx.arc(220, 30, 20, 0, Math.PI * 2);
@@ -508,11 +508,7 @@
           (self._powPromise || Promise.resolve()).then(function() {
             return self._submit(s);
           }).then(function(result) {
-            if (result.verdict === 'bot' && result.score < self.threshold) {
-              if (typeof self.onBot === 'function') self.onBot(result);
-              if (self.fakeSuccess) self._showFakeSuccess(form);
-              return;
-            }
+            // Inject token hidden field
             var tokenInput = form.querySelector('input[name=_ss_token]');
             if (!tokenInput) {
               tokenInput = document.createElement('input');
@@ -520,10 +516,29 @@
               tokenInput.name = '_ss_token';
               form.appendChild(tokenInput);
             }
-            tokenInput.value = result.token;
+            tokenInput.value = result.token || '';
+
+            // If onSubmit callback registered, hand control to caller and stop here
+            if (typeof self._onSubmitCb === 'function') {
+              self._onSubmitCb(result);
+              return;
+            }
+
+            // Bot: show fake success or fire onBot hook
+            if (result.verdict === 'bot' && result.score < self.threshold) {
+              if (typeof self.onBot === 'function') self.onBot(result);
+              if (self.fakeSuccess) self._showFakeSuccess(form);
+              return;
+            }
+
+            // Human: actually submit the form
             HTMLFormElement.prototype.submit.call(form);
           }).catch(function() {
-            // Fail open ??never block real users on network error
+            // Fail open — never block real users on network error
+            if (typeof self._onSubmitCb === 'function') {
+              self._onSubmitCb({ token: null, score: null, verdict: 'unknown', error: true });
+              return;
+            }
             HTMLFormElement.prototype.submit.call(form);
           });
         }, { capture: true });

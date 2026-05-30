@@ -1,35 +1,35 @@
 const fs = require('fs');
 const path = require('path');
 
-const src = fs.readFileSync(path.join(__dirname, 'src/index.js'), 'utf8');
+async function build() {
+  const src = fs.readFileSync(path.join(__dirname, 'src/index.js'), 'utf8');
 
-// Write full (unminified) version
-fs.writeFileSync(path.join(__dirname, 'dist/silentshield.js'), src);
+  // Full unminified version
+  fs.writeFileSync(path.join(__dirname, 'dist/silentshield.js'), src);
 
-// Simple minification (remove comments, collapse whitespace)
-let min = src
-  .replace(/\/\*[\s\S]*?\*\//g, '')      // block comments
-  .replace(/\/\/[^\n]*/g, '')             // line comments
-  .replace(/\n\s*\n/g, '\n')             // blank lines
-  .replace(/^\s+/gm, '')                  // leading whitespace
-  .trim();
+  // Minified using terser (safe — doesn't break URLs in strings like the naive // regex does)
+  let minCode = src;
+  try {
+    const { minify } = require('terser');
+    const result = await minify(src, { compress: true, mangle: false, format: { comments: false } });
+    minCode = result.code;
+  } catch(e) {
+    // Fallback: strip only block comments (safe), leave line comments alone
+    console.warn('terser unavailable, using fallback minification:', e.message);
+    minCode = src
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\n\s*\n/g, '\n')
+      .replace(/^\s+/gm, '')
+      .trim();
+  }
+  fs.writeFileSync(path.join(__dirname, 'dist/silentshield.min.js'), minCode);
 
-fs.writeFileSync(path.join(__dirname, 'dist/silentshield.min.js'), min);
+  // ESM copy
+  fs.writeFileSync(path.join(__dirname, 'dist/silentshield.esm.js'), src);
 
-// ESM wrapper
-const esm = `export default (${src.match(/function SilentShield[\s\S]*?^}/m)?.[0] || 'null'});\n`;
-const esmWrapped = `// SilentShield ESM build\n${src.replace(
-  /\(function \(global, factory\)[\s\S]*?\}\);/,
-  `const SilentShield = (function() { ${src} return SilentShield; })();\nexport default SilentShield;\nexport { SilentShield };`
-)}`;
+  console.log('✅ SDK built successfully:');
+  console.log(`   silentshield.js:     ${(src.length/1024).toFixed(1)}KB`);
+  console.log(`   silentshield.min.js: ${(minCode.length/1024).toFixed(1)}KB`);
+}
 
-// Just copy as ESM for now
-fs.writeFileSync(path.join(__dirname, 'dist/silentshield.esm.js'), src);
-
-const sizes = {
-  'silentshield.js': src.length,
-  'silentshield.min.js': min.length,
-};
-
-console.log('✅ SDK built successfully:');
-Object.entries(sizes).forEach(([f, s]) => console.log(`   ${f}: ${(s/1024).toFixed(1)}KB`));
+build().catch(err => { console.error('Build failed:', err); process.exit(1); });

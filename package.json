@@ -3,11 +3,17 @@
   "version": "1.0.0",
   "description": "Invisible CAPTCHA protection — no puzzles, no friction",
   "private": true,
-  "workspaces": ["server", "sdk"],
+  "workspaces": [
+    "server",
+    "sdk"
+  ],
   "scripts": {
     "dev": "npm run dev --workspace=server",
     "start": "npm run start --workspace=server",
     "build:sdk": "npm run build --workspace=sdk",
     "deploy": "pm2 restart silentshield || pm2 start server/index.js --name silentshield"
+  },
+  "devDependencies": {
+    "terser": "^5.48.0"
   }
 }
