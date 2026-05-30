@@ -1,9 +1,25 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const db = require('../db');
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-me';
 
 function requireSecret(req, res, next) {
+  // Accept Bearer JWT or x-secret-key header/query
+  const auth = req.headers['authorization'] || '';
+  if (auth.startsWith('Bearer ')) {
+    try {
+      const payload = jwt.verify(auth.slice(7), JWT_SECRET);
+      const site = db.prepare('SELECT * FROM sites WHERE public_key = ?').get(payload.public_key);
+      if (!site) return res.status(403).json({ error: 'Site not found' });
+      req.site = site;
+      return next();
+    } catch (e) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+  }
+
   const secret = req.headers['x-secret-key'] || req.query.secret;
   if (!secret) return res.status(401).json({ error: 'x-secret-key header required' });
 
@@ -51,9 +67,7 @@ router.get('/overview', requireSecret, (req, res) => {
     res.json({
       site: {
         domain: site.domain,
-        plan: site.plan,
-        monthly_requests: site.monthly_requests,
-        monthly_limit: 50000,
+        public_key: site.public_key,
       },
       today,
       week,

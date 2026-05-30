@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SilentShield — Live Captcha Test</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #1a1a28;
+      --border: #2a2a3a;
+      --accent: #6c63ff;
+      --accent2: #a78bfa;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --radius: 12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* NAV */
+    nav {
+      background: rgba(10,10,15,0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; text-decoration: none; color: var(--text); }
+    .nav-logo .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .nav-links { display: flex; gap: 1rem; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.btn-nav { background: var(--accent); color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; }
+    .nav-links a.btn-nav:hover { background: var(--accent2); color: #fff; }
+
+    /* LAYOUT */
+    .container { max-width: 960px; margin: 0 auto; padding: 3rem 1.5rem; }
+
+    .page-header { text-align: center; margin-bottom: 3rem; }
+    .page-header .badge { display: inline-block; background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3); color: var(--accent2); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 1rem; }
+    .page-header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.75rem; }
+    .page-header p { color: var(--muted); font-size: 1.05rem; max-width: 540px; margin: 0 auto; line-height: 1.6; }
+
+    /* TWO-COLUMN GRID */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+    /* CARD */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+    }
+    .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+    .card-title .icon { font-size: 1.1rem; }
+
+    /* FORM */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--accent); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    /* Honeypot — hidden */
+    .hp-trap { opacity: 0; position: absolute; top: -9999px; left: -9999px; height: 0; overflow: hidden; }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      margin-top: 0.5rem;
+    }
+    .btn-submit:hover { opacity: 0.9; }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* SIGNAL METERS */
+    .signal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+    .signal-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; }
+    .signal-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+    .signal-val { font-size: 1.25rem; font-weight: 700; color: var(--accent2); font-variant-numeric: tabular-nums; }
+    .signal-val.green { color: var(--green); }
+    .signal-val.yellow { color: var(--yellow); }
+    .signal-val.red { color: var(--red); }
+
+    /* STATUS BAR */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); animation: pulse 1.5s infinite; flex-shrink: 0; }
+    .status-dot.ready { background: var(--green); animation: none; }
+    .status-dot.error { background: var(--red); animation: none; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+    /* RESULT PANEL */
+    .result-panel { display: none; }
+    .result-panel.show { display: block; }
+
+    .verdict-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .verdict-badge.human { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: var(--green); }
+    .verdict-badge.bot { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: var(--red); }
+    .verdict-badge.suspicious { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: var(--yellow); }
+
+    /* SCORE RING */
+    .score-ring-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.25rem; }
+    .score-ring { position: relative; width: 110px; height: 110px; }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring circle { fill: none; stroke-width: 8; }
+    .score-ring .bg { stroke: var(--border); }
+    .score-ring .fg { stroke: var(--green); stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1); }
+    .score-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-num { font-size: 1.5rem; font-weight: 800; }
+    .score-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* BREAKDOWN BARS */
+    .breakdown { margin-top: 1rem; }
+    .breakdown-row { margin-bottom: 10px; }
+    .breakdown-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
+    .breakdown-header .name { color: var(--muted); }
+    .breakdown-header .val { color: var(--text); font-weight: 600; }
+    .bar-track { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+
+    /* TOKEN BOX */
+    .token-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 0.75rem; font-family: 'Courier New', monospace; color: var(--muted); word-break: break-all; margin-top: 0.75rem; }
+    .token-box strong { display: block; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .token-val { color: var(--accent2); }
+
+    /* VERIFY RESULT */
+    .verify-result { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-top: 0.75rem; font-size: 0.85rem; }
+    .verify-result h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.5rem; }
+    .verify-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .verify-row:last-child { border-bottom: none; }
+    .verify-row .vk { color: var(--muted); }
+    .verify-row .vv { font-weight: 600; }
+    .verify-row .vv.ok { color: var(--green); }
+    .verify-row .vv.bad { color: var(--red); }
+
+    /* DIVIDER */
+    .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+    /* LAYERS LIST */
+    .layers { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .layers li { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .layers li:last-child { border-bottom: none; }
+    .layers li .l-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .layers li .l-name { flex: 1; color: var(--muted); }
+    .layers li .l-status { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+    .l-status.collecting { background: rgba(108,99,255,0.15); color: var(--accent2); }
+    .l-status.active { background: rgba(16,185,129,0.15); color: var(--green); }
+    .l-status.waiting { background: rgba(100,116,139,0.15); color: var(--muted); }
+
+    /* RESET BTN */
+    .btn-reset {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-reset:hover { border-color: var(--accent); color: var(--text); }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+    footer a { color: var(--accent2); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="logo-icon">🛡️</div>
+    SilentShield
+  </a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/test" class="btn-nav">Live Test</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div class="page-header">
+    <div class="badge">Live Captcha Demo</div>
+    <h1>Try SilentShield for Real</h1>
+    <p>Submit this real form — the SDK collects behavioral signals invisibly and returns a live bot score from the actual SilentShield API.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- LEFT: The real form -->
+    <div>
+      <div class="card">
+        <div class="card-title"><span class="icon">📝</span> Test Form</div>
+
+        <div id="statusBar" class="status-bar">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">Initializing SilentShield SDK…</span>
+        </div>
+
+        <!-- This is the real protected form -->
+        <form id="testForm" data-silentshield novalidate>
+
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" name="name" placeholder="Your name" autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="you@example.com" autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label>Subject</label>
+            <select name="subject">
+              <option value="">— choose —</option>
+              <option>Testing SilentShield</option>
+              <option>Integration question</option>
+              <option>Bot detection inquiry</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Message</label>
+            <textarea name="message" placeholder="Type something here…"></textarea>
+          </div>
+
+          <!-- Honeypot (hidden from real users, bots fill it) -->
+          <div class="hp-trap" aria-hidden="true">
+            <input type="text" name="website2" tabindex="-1" autocomplete="off">
+            <input type="text" name="phone2" tabindex="-1" autocomplete="off">
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn" disabled>
+            Analyzing… (SDK loading)
+          </button>
+        </form>
+
+        <div id="resultPanel" class="result-panel">
+          <div class="divider"></div>
+
+          <div id="verdictBadge" class="verdict-badge human">
+            <span id="verdictIcon">✅</span>
+            <span id="verdictText">HUMAN</span>
+          </div>
+
+          <div class="score-ring-wrap">
+            <div class="score-ring">
+              <svg viewBox="0 0 110 110" width="110" height="110">
+                <circle class="bg" cx="55" cy="55" r="46"/>
+                <circle class="fg" id="scoreArc" cx="55" cy="55" r="46"
+                  stroke-dasharray="289"
+                  stroke-dashoffset="289"/>
+              </svg>
+              <div class="score-center">
+                <span class="score-num" id="scoreNum">—</span>
+                <span class="score-label">score</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="breakdown" id="breakdown">
+            <div class="breakdown-row">
+              <div class="breakdown-header"><span class="name">Behavior</span><span class="val" id="bScore">—</span></div>
+              <div class="bar-track"><div class="bar-fill" id="bBar" style="width:0%"></div></div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-header"><span class="name">Input Quality</span><span class="val" id="iScore">—</span></div>
+              <div class="bar-track"><div class="bar-fill" id="iBar" style="width:0%"></div></div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-header"><span class="name">Environment</span><span class="val" id="eScore">—</span></div>
+              <div class="bar-track"><div class="bar-fill" id="eBar" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <div class="token-box">
+            <strong>Token</strong>
+            <span class="token-val" id="tokenVal">—</span>
+          </div>
+
+          <div class="verify-result" id="verifyResult" style="display:none">
+            <h4>Server Verify (/api/verify)</h4>
+            <div class="verify-row"><span class="vk">valid</span><span class="vv" id="vValid">—</span></div>
+            <div class="verify-row"><span class="vk">score</span><span class="vv" id="vScore">—</span></div>
+            <div class="verify-row"><span class="vk">verdict</span><span class="vv" id="vVerdict">—</span></div>
+            <div class="verify-row"><span class="vk">timestamp</span><span class="vv" id="vTimestamp">—</span></div>
+          </div>
+
+          <button class="btn-reset" onclick="resetTest()">↺ Test Again</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Live signal stats + layer info -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+      <div class="card">
+        <div class="card-title"><span class="icon">📡</span> Live Signals</div>
+        <div class="signal-grid">
+          <div class="signal-item">
+            <div class="signal-label">Mouse Events</div>
+            <div class="signal-val" id="sigMouse">0</div>
+          </div>
+          <div class="signal-item">
+            <div class="signal-label">Scroll Events</div>
+            <div class="signal-val" id="sigScroll">0</div>
+          </div>
+          <div class="signal-item">
+            <div class="signal-label">Key Events</div>
+            <div class="signal-val" id="sigKeys">0</div>
+          </div>
+          <div class="signal-item">
+            <div class="signal-label">Time on Page</div>
+            <div class="signal-val" id="sigTime">0s</div>
+          </div>
+          <div class="signal-item">
+            <div class="signal-label">Form Fill Time</div>
+            <div class="signal-val" id="sigFill">—</div>
+          </div>
+          <div class="signal-item">
+            <div class="signal-label">PoW Status</div>
+            <div class="signal-val" id="sigPow" style="font-size:0.85rem">waiting</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🔍</span> Detection Layers</div>
+        <ul class="layers" id="layerList">
+          <li><span class="l-icon">⚙️</span><span class="l-name">Proof of Work (SHA-256)</span><span class="l-status collecting" id="layer-pow">collecting</span></li>
+          <li><span class="l-icon">🖱️</span><span class="l-name">Mouse Entropy</span><span class="l-status collecting" id="layer-mouse">collecting</span></li>
+          <li><span class="l-icon">⌨️</span><span class="l-name">Keyboard Biometrics</span><span class="l-status collecting" id="layer-kbd">collecting</span></li>
+          <li><span class="l-icon">🎨</span><span class="l-name">Canvas Fingerprint</span><span class="l-status waiting" id="layer-canvas">ready</span></li>
+          <li><span class="l-icon">🖼️</span><span class="l-name">WebGL Fingerprint</span><span class="l-status waiting" id="layer-webgl">ready</span></li>
+          <li><span class="l-icon">🔊</span><span class="l-name">Audio Context</span><span class="l-status waiting" id="layer-audio">ready</span></li>
+          <li><span class="l-icon">🔤</span><span class="l-name">Font Enumeration</span><span class="l-status waiting" id="layer-fonts">ready</span></li>
+          <li><span class="l-icon">🍯</span><span class="l-name">Honeypot Fields</span><span class="l-status waiting" id="layer-hp">monitoring</span></li>
+          <li><span class="l-icon">🛡️</span><span class="l-name">Spam Filter</span><span class="l-status waiting" id="layer-spam">monitoring</span></li>
+          <li><span class="l-icon">🌐</span><span class="l-name">Environment Flags</span><span class="l-status waiting" id="layer-env">ready</span></li>
+          <li><span class="l-icon">🤖</span><span class="l-name">Automation Detection</span><span class="l-status waiting" id="layer-auto">ready</span></li>
+          <li><span class="l-icon">📊</span><span class="l-name">Learned Bot Patterns</span><span class="l-status waiting" id="layer-patterns">active</span></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>SilentShield &mdash; Invisible bot detection &mdash; <a href="/">sh.krl.kr</a></p>
+</footer>
+
+<!-- Load the real SilentShield SDK -->
+<script src="/silentshield.min.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  var pageStart = Date.now();
+  var mouseCount = 0;
+  var scrollCount = 0;
+  var keyCount = 0;
+  var formFocusTime = null;
+
+  // Live counters
+  document.addEventListener('mousemove', function() {
+    mouseCount++;
+    document.getElementById('sigMouse').textContent = mouseCount;
+    updateLayerStatus('layer-mouse', mouseCount > 10 ? 'active' : 'collecting');
+  });
+  document.addEventListener('scroll', function() {
+    scrollCount++;
+    document.getElementById('sigScroll').textContent = scrollCount;
+  });
+  document.addEventListener('keydown', function() {
+    keyCount++;
+    document.getElementById('sigKeys').textContent = keyCount;
+    updateLayerStatus('layer-kbd', keyCount > 3 ? 'active' : 'collecting');
+  });
+
+  // Time on page counter
+  setInterval(function() {
+    var s = Math.floor((Date.now() - pageStart) / 1000);
+    document.getElementById('sigTime').textContent = s + 's';
+  }, 1000);
+
+  // Track first form interaction
+  document.getElementById('testForm').addEventListener('focusin', function() {
+    if (!formFocusTime) formFocusTime = Date.now();
+  });
+  document.getElementById('testForm').addEventListener('input', function() {
+    if (formFocusTime) {
+      var ms = Date.now() - formFocusTime;
+      document.getElementById('sigFill').textContent = (ms / 1000).toFixed(1) + 's';
+    }
+  });
+
+  function updateLayerStatus(id, status) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'l-status ' + status;
+    el.textContent = status;
+  }
+
+  function setStatus(text, state) {
+    var dot = document.getElementById('statusDot');
+    var label = document.getElementById('statusText');
+    dot.className = 'status-dot' + (state ? ' ' + state : '');
+    label.textContent = text;
+  }
+
+  // Initialize SDK
+  var shield = null;
+
+  function initSDK() {
+    try {
+      shield = new SilentShield({
+        apiUrl: window.location.origin,
+        debug: true,
+      });
+
+      shield.protect('#testForm');
+
+      setStatus('SDK active — collecting signals…', '');
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').textContent = 'Submit (Protected by SilentShield)';
+      updateLayerStatus('layer-pow', 'collecting');
+
+      shield.onSubmit(function(result) {
+        handleResult(result);
+      });
+
+      // Mark PoW as active after a short delay (it runs async on page load)
+      setTimeout(function() {
+        updateLayerStatus('layer-pow', 'active');
+        document.getElementById('sigPow').textContent = 'solved';
+        document.getElementById('sigPow').classList.add('green');
+      }, 2000);
+
+    } catch(err) {
+      setStatus('SDK error: ' + err.message, 'error');
+      console.error('[SilentShield test]', err);
+      // Fallback: handle form submit manually
+      initFallback();
+    }
+  }
+
+  function initFallback() {
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('submitBtn').textContent = 'Submit (manual mode)';
+    document.getElementById('testForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitManually();
+    });
+  }
+
+  function submitManually() {
+    setStatus('Sending signals…', '');
+    fetch('/api/signal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mouseEvents: mouseCount,
+        scrollEvents: scrollCount,
+        formFillMs: formFocusTime ? Date.now() - formFocusTime : 0,
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      handleSignalResult(data.token, data.score, data.verdict, null);
+    })
+    .catch(function(err) {
+      setStatus('Error: ' + err.message, 'error');
+    });
+  }
+
+  function handleResult(result) {
+    // result may be { token, score, verdict } from onSubmit callback
+    // or it may just be the token string depending on SDK version
+    var token = (typeof result === 'string') ? result : (result && result.token);
+    var score = result && result.score;
+    var verdict = result && result.verdict;
+    handleSignalResult(token, score, verdict, result);
+  }
+
+  function handleSignalResult(token, score, verdict, raw) {
+    setStatus('Analysis complete!', 'ready');
+
+    // Show result panel
+    document.getElementById('resultPanel').classList.add('show');
+    document.getElementById('submitBtn').style.display = 'none';
+
+    // Verdict badge
+    var badge = document.getElementById('verdictBadge');
+    var verdictText = (verdict || 'unknown').toUpperCase();
+    var verdictIcon = verdict === 'human' ? '✅' : verdict === 'bot' ? '🚫' : '⚠️';
+    badge.className = 'verdict-badge ' + (verdict || 'suspicious');
+    document.getElementById('verdictIcon').textContent = verdictIcon;
+    document.getElementById('verdictText').textContent = verdictText;
+
+    // Score ring
+    if (typeof score === 'number') {
+      var pct = Math.max(0, Math.min(1, score));
+      var circumference = 289;
+      var offset = circumference - (pct * circumference);
+      document.getElementById('scoreArc').style.strokeDashoffset = offset;
+      var scoreColor = pct >= 0.6 ? '#10b981' : pct >= 0.35 ? '#f59e0b' : '#ef4444';
+      document.getElementById('scoreArc').style.stroke = scoreColor;
+      document.getElementById('scoreNum').textContent = Math.round(pct * 100);
+      document.getElementById('scoreNum').style.color = scoreColor;
+    }
+
+    // Token
+    if (token) {
+      document.getElementById('tokenVal').textContent = token;
+    }
+
+    // Breakdown from raw result if available
+    if (raw && raw.breakdown) {
+      showBreakdown(raw.breakdown);
+    }
+
+    // Server verify
+    if (token) {
+      fetch('/api/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: token })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(v) {
+        var vr = document.getElementById('verifyResult');
+        vr.style.display = 'block';
+        document.getElementById('vValid').textContent = v.valid ? 'true' : 'false';
+        document.getElementById('vValid').className = 'vv ' + (v.valid ? 'ok' : 'bad');
+        document.getElementById('vScore').textContent = typeof v.score === 'number' ? Math.round(v.score * 100) + '%' : '—';
+        document.getElementById('vVerdict').textContent = v.verdict || v.error || '—';
+        document.getElementById('vTimestamp').textContent = v.timestamp ? new Date(v.timestamp).toLocaleTimeString() : '—';
+        if (!raw || !raw.breakdown) {
+          // Pull breakdown from signal response
+          fetch('/api/signal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ _recheck: true, mouseEvents: mouseCount, scrollEvents: scrollCount })
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(d) { if (d.breakdown) showBreakdown(d.breakdown); })
+          .catch(function(){});
+        }
+      })
+      .catch(function(err) {
+        console.error('[verify]', err);
+      });
+    }
+
+    // Update layers to "active"
+    ['layer-canvas','layer-webgl','layer-audio','layer-fonts','layer-env','layer-auto','layer-patterns'].forEach(function(id) {
+      updateLayerStatus(id, 'active');
+    });
+  }
+
+  function showBreakdown(bd) {
+    var b = bd.behaviorScore !== undefined ? bd.behaviorScore : null;
+    var i = bd.inputScore !== undefined ? bd.inputScore : null;
+    var e = bd.envScore !== undefined ? bd.envScore : null;
+
+    function setPct(elId, barId, val) {
+      if (val === null) return;
+      var pct = Math.max(0, Math.min(100, Math.round(val * 100)));
+      document.getElementById(elId).textContent = pct + '%';
+      document.getElementById(barId).style.width = pct + '%';
+    }
+    setPct('bScore', 'bBar', b);
+    setPct('iScore', 'iBar', i);
+    setPct('eScore', 'eBar', e);
+  }
+
+  function resetTest() {
+    document.getElementById('resultPanel').classList.remove('show');
+    document.getElementById('submitBtn').style.display = '';
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('submitBtn').textContent = 'Submit (Protected by SilentShield)';
+    document.getElementById('testForm').reset();
+    document.getElementById('verifyResult').style.display = 'none';
+    document.getElementById('tokenVal').textContent = '—';
+    document.getElementById('scoreNum').textContent = '—';
+    document.getElementById('scoreArc').style.strokeDashoffset = '289';
+    ['bScore','iScore','eScore'].forEach(function(id){ document.getElementById(id).textContent = '—'; });
+    ['bBar','iBar','eBar'].forEach(function(id){ document.getElementById(id).style.width = '0%'; });
+    setStatus('Ready — submit the form to test', 'ready');
+
+    // Re-protect form
+    if (shield) {
+      try { shield.protect('#testForm'); } catch(e) {}
+    }
+  }
+  window.resetTest = resetTest;
+
+  // Boot
+  if (typeof SilentShield !== 'undefined') {
+    initSDK();
+  } else {
+    setStatus('Loading SDK…', '');
+    window.addEventListener('load', function() {
+      if (typeof SilentShield !== 'undefined') initSDK();
+      else {
+        setStatus('SDK failed to load', 'error');
+        initFallback();
+      }
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>

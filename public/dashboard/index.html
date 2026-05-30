@@ -221,10 +221,11 @@
     <a class="nav-item" onclick="showPage('keys')">🔑 API Keys</a>
     <a class="nav-item" href="/" target="_blank">📖 Docs</a>
     <div class="sidebar-bottom">
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:10px;">
         <span class="live-dot"></span>
         <span style="color:var(--muted);">Live · updating</span>
       </div>
+      <a class="nav-item" onclick="logout()" style="color:var(--muted);font-size:13px;padding:8px 0;border-left:none;">🚪 Log out</a>
     </div>
   </aside>
 
@@ -382,14 +383,6 @@
           <div class="key-label">Domain</div>
           <div class="key-val" id="k-domain">--</div>
         </div>
-        <div class="key-row">
-          <div class="key-label">Plan</div>
-          <div class="key-val" id="k-plan">free</div>
-        </div>
-        <div class="key-row">
-          <div class="key-label">Monthly</div>
-          <div class="key-val" id="k-usage">--</div>
-        </div>
       </div>
       <div class="key-card">
         <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Public Key</div>
@@ -418,34 +411,113 @@
 
 <script>
 let SECRET_KEY = '';
+let JWT_TOKEN = '';
 let siteData = null;
+let keysData = null;
+let refreshTimer = null;
 
+// --- Auth helpers ---
+function authHeaders() {
+  if (JWT_TOKEN) return { 'Authorization': 'Bearer ' + JWT_TOKEN };
+  return { 'x-secret-key': SECRET_KEY };
+}
+
+function saveSession(token) {
+  try {
+    localStorage.setItem('ss_jwt', token);
+    localStorage.setItem('ss_jwt_ts', Date.now().toString());
+  } catch(e) {}
+}
+
+function loadSession() {
+  try {
+    const token = localStorage.getItem('ss_jwt');
+    const ts = parseInt(localStorage.getItem('ss_jwt_ts') || '0');
+    // 30 days in ms
+    if (token && (Date.now() - ts) < 30 * 24 * 3600 * 1000) return token;
+  } catch(e) {}
+  return null;
+}
+
+function clearSession() {
+  try { localStorage.removeItem('ss_jwt'); localStorage.removeItem('ss_jwt_ts'); } catch(e) {}
+  JWT_TOKEN = '';
+  SECRET_KEY = '';
+}
+
+// --- Enter dashboard ---
 async function enterDashboard() {
   const key = document.getElementById('gate-key').value.trim();
   if (!key) return;
+  const btn = document.querySelector('#gate .btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
 
   try {
-    const res = await fetch('/api/analytics/overview', { headers: { 'x-secret-key': key } });
-    if (!res.ok) throw new Error('Invalid key');
-    const data = await res.json();
+    // Exchange secret key for JWT
+    const loginRes = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret_key: key }),
+    });
+    if (!loginRes.ok) throw new Error('Invalid key');
+    const loginData = await loginRes.json();
+    JWT_TOKEN = loginData.token;
     SECRET_KEY = key;
-    siteData = data;
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    document.getElementById('site-domain').textContent = data.site.domain;
-    document.getElementById('k-domain').textContent = data.site.domain;
-    document.getElementById('k-plan').textContent = data.site.plan;
-    document.getElementById('k-usage').textContent = `${(data.site.monthly_requests || 0).toLocaleString()} / ${(data.site.monthly_limit || 50000).toLocaleString()} requests this month`;
-    loadAll();
-    setInterval(loadAll, 30000);
+    saveSession(JWT_TOKEN);
+    await openDashboard();
   } catch(e) {
     const err = document.getElementById('gate-error');
     err.style.display = 'block';
     err.textContent = 'Invalid secret key. Check your key and try again.';
+    if (btn) { btn.disabled = false; btn.textContent = 'Enter Dashboard'; }
   }
 }
 
+async function openDashboard() {
+  // Fetch overview to get site info + public_key
+  const res = await fetch('/api/analytics/overview', { headers: authHeaders() });
+  if (!res.ok) { clearSession(); location.reload(); return; }
+  const data = await res.json();
+  siteData = data;
+
+  // Also fetch keys from /api/auth/me to get secret key for display
+  try {
+    const meRes = await fetch('/api/auth/me', { headers: authHeaders() });
+    if (meRes.ok) keysData = await meRes.json();
+  } catch(e) {}
+
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('site-domain').textContent = data.site.domain;
+  document.getElementById('k-domain').textContent = data.site.domain;
+  loadAll();
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(loadAll, 30000);
+}
+
+// Auto-login from stored JWT on page load
+window.addEventListener('DOMContentLoaded', async () => {
+  const stored = loadSession();
+  if (stored) {
+    JWT_TOKEN = stored;
+    try {
+      await openDashboard();
+      return;
+    } catch(e) {
+      clearSession();
+    }
+  }
+});
+
 document.getElementById('gate-key').addEventListener('keydown', e => { if (e.key === 'Enter') enterDashboard(); });
+
+function logout() {
+  clearSession();
+  if (refreshTimer) clearInterval(refreshTimer);
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('gate').style.display = '';
+  document.getElementById('gate-key').value = '';
+}
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -460,7 +532,8 @@ function showPage(name) {
 
 async function loadAll() {
   try {
-    const res = await fetch('/api/analytics/overview', { headers: { 'x-secret-key': SECRET_KEY } });
+    const res = await fetch('/api/analytics/overview', { headers: authHeaders() });
+    if (res.status === 401) { clearSession(); location.reload(); return; }
     const data = await res.json();
     siteData = data;
 
@@ -484,7 +557,7 @@ async function loadAll() {
 
 function renderWeekChart(week) {
   const chart = document.getElementById('week-chart');
-  if (!week || week.length === 0) { chart.innerHTML = '<div class="empty"><div class=\"empty-icon\">📊</div>No data yet</div>'; return; }
+  if (!week || week.length === 0) { chart.innerHTML = '<div class="empty"><div class="empty-icon">📊</div>No data yet</div>'; return; }
 
   const maxTotal = Math.max(...week.map(d => d.total), 1);
   chart.innerHTML = '';
@@ -507,7 +580,6 @@ function renderWeekChart(week) {
 function renderMapDots() {
   const dots = document.getElementById('map-dots');
   if (!dots) return;
-  // Animated dots at approximate world regions
   const locations = [
     {x:'15%',y:'35%',label:'EU'},{x:'30%',y:'25%',label:'US'},{x:'70%',y:'30%',label:'KR'},
     {x:'65%',y:'28%',label:'JP'},{x:'72%',y:'45%',label:'SG'},{x:'60%',y:'20%',label:'RU'},
@@ -522,10 +594,10 @@ async function loadSubmissions() {
   const tbody = document.getElementById('sub-table');
   tbody.innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div>Loading...</div></td></tr>';
   try {
-    const res = await fetch('/api/analytics/recent?limit=50', { headers: { 'x-secret-key': SECRET_KEY } });
+    const res = await fetch('/api/analytics/recent?limit=50', { headers: authHeaders() });
     const data = await res.json();
     const rows = data.submissions || [];
-    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon"></div>No submissions yet</div></td></tr>'; return; }
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">📋</div>No submissions yet</div></td></tr>'; return; }
 
     tbody.innerHTML = rows.map(r => {
       const vc = r.verdict === 'human' ? 'v-human' : r.verdict === 'bot' ? 'v-bot' : 'v-suspicious';
@@ -554,21 +626,31 @@ async function loadPatterns() {
   const el = document.getElementById('patterns-list');
   el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
   try {
-    const res = await fetch('/api/analytics/patterns', { headers: { 'x-secret-key': SECRET_KEY } });
+    const res = await fetch('/api/analytics/patterns', { headers: authHeaders() });
     const data = await res.json();
     const patterns = data.patterns || [];
-    if (!patterns.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🤖</div>No patterns learned yet. More data needed.</div>'; return; }
+    if (!patterns.length) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">🤖</div>No patterns learned yet — submit some forms via the <a href="/test" style="color:var(--purple-light);">test page</a> to generate data.</div>';
+      return;
+    }
 
-    el.innerHTML = patterns.map(p => {
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="font-size:13px;color:var(--muted);">${patterns.length} patterns · auto-updates every 10 min</div>
+        <button class="btn btn-purple" style="padding:6px 12px;font-size:12px;" onclick="loadPatterns()">↻ Refresh</button>
+      </div>` +
+    patterns.map(p => {
       const typeClass = p.pattern_type === 'user_agent' ? 'pt-ua' : p.pattern_type === 'timing' ? 'pt-timing' : 'pt-behavior';
       const conf = Math.round(p.confidence * 100);
       const confColor = conf > 80 ? 'var(--red)' : conf > 60 ? 'var(--yellow)' : 'var(--muted)';
+      const updated = p.last_updated ? new Date(p.last_updated).toLocaleString() : '--';
       return `<div class="pattern-row">
         <span class="pattern-type ${typeClass}">${p.pattern_type}</span>
         <span class="pattern-val">${p.pattern_value}</span>
         <span style="color:var(--red);font-weight:700;min-width:40px;">${p.score_adjustment}</span>
         <span class="pattern-conf">${p.hit_count} hits</span>
         <span style="color:${confColor};font-weight:600;min-width:50px;text-align:right;">${conf}%</span>
+        <span style="color:var(--muted);font-size:11px;margin-left:8px;">${updated}</span>
       </div>`;
     }).join('');
   } catch(e) { el.innerHTML = '<div style="color:var(--red);">Error loading patterns</div>'; }
@@ -578,7 +660,7 @@ async function loadThreats() {
   const el = document.getElementById('threats-list');
   el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
   try {
-    const res = await fetch('/api/analytics/overview', { headers: { 'x-secret-key': SECRET_KEY } });
+    const res = await fetch('/api/analytics/overview', { headers: authHeaders() });
     const data = await res.json();
     const t = data.threats || {};
     const total = Math.max(t.bot_submissions || 1, 1);
@@ -602,21 +684,45 @@ async function loadThreats() {
 }
 
 async function loadKeys() {
-  if (!siteData) return;
-  // We don't store the actual keys in the overview response for security
-  // Show what we know from siteData
-  document.getElementById('k-usage').textContent =
-    `${(siteData.site.monthly_requests || 0).toLocaleString()} / ${(siteData.site.monthly_limit || 50000).toLocaleString()} requests this month`;
+  // Use cached keysData or re-fetch from /api/auth/me
+  let keys = keysData;
+  if (!keys) {
+    try {
+      const res = await fetch('/api/auth/me', { headers: authHeaders() });
+      if (res.ok) { keys = await res.json(); keysData = keys; }
+    } catch(e) {}
+  }
+  const pk = (keys && keys.public_key) || (siteData && siteData.site && siteData.site.public_key) || '';
+  const sk = (keys && keys.secret_key) || SECRET_KEY || '';
+  const domain = (keys && keys.domain) || (siteData && siteData.site && siteData.site.domain) || '';
+
+  if (pk) {
+    document.getElementById('k-public').textContent = pk;
+    document.getElementById('k-public-inline').textContent = pk;
+  }
+  if (domain) document.getElementById('k-domain').textContent = domain;
+  // Store sk for reveal
+  if (sk) document.getElementById('k-secret').dataset.sk = sk;
 }
 
 function revealKey() {
   const el = document.getElementById('k-secret');
+  const sk = el.dataset.sk || SECRET_KEY;
   el.style.filter = '';
-  el.textContent = SECRET_KEY;
+  el.textContent = sk;
+  const btn = event.currentTarget;
+  btn.textContent = 'Hide';
+  btn.onclick = function() {
+    el.style.filter = 'blur(4px)';
+    el.textContent = 'sk_•••••••••••••••••••••••••••••••••••••';
+    btn.textContent = 'Reveal';
+    btn.onclick = revealKey;
+  };
 }
 
 function copyKey(id) {
-  const text = document.getElementById(id).textContent;
+  const el = document.getElementById(id);
+  const text = el.dataset.sk || el.textContent;
   navigator.clipboard.writeText(text).then(() => {
     const btn = event.currentTarget;
     btn.textContent = 'Copied!';

@@ -8,11 +8,12 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'x-secret-key', 'x-admin-secret'],
+  allowedHeaders: ['Content-Type', 'x-secret-key', 'x-admin-secret', 'Authorization'],
 }));
 app.use(express.json({ limit: '50kb' }));
 
@@ -26,8 +27,10 @@ app.use('/api/', apiLimiter);
 
 const verifyRouter = require('./routes/verify');
 const analyticsRouter = require('./routes/analytics');
+const authRouter = require('./routes/auth');
 app.use('/api', verifyRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/auth', authRouter);
 app.get('/health', (_, res) => res.json({ status: 'ok', ts: Date.now() }));
 
 const publicDir = path.join(__dirname, '..', 'public');
