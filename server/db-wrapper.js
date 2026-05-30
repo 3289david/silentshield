@@ -44,7 +44,7 @@ class Statement {
       if (params.length > 0 || (typeof params === 'object' && !Array.isArray(params))) {
         stmt.bind(params);
       }
-      if (stmt.step()) return stmt.getAsObject({});
+      if (stmt.step()) return stmt.getAsObject(null);
       return undefined;
     } finally {
       stmt.free();
@@ -59,7 +59,7 @@ class Statement {
       if (params.length > 0 || (typeof params === 'object' && !Array.isArray(params))) {
         stmt.bind(params);
       }
-      while (stmt.step()) rows.push(stmt.getAsObject({}));
+      while (stmt.step()) rows.push(stmt.getAsObject(null));
     } finally {
       stmt.free();
     }

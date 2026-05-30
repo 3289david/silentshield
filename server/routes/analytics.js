@@ -16,48 +16,53 @@ function requireSecret(req, res, next) {
 
 // GET /api/analytics/overview
 router.get('/overview', requireSecret, (req, res) => {
-  const { site } = req;
-  const since24h = new Date(Date.now() - 86400000).toISOString();
-  const since7d = new Date(Date.now() - 7 * 86400000).toISOString();
+  try {
+    const { site } = req;
+    const since24h = new Date(Date.now() - 86400000).toISOString();
+    const since7d = new Date(Date.now() - 7 * 86400000).toISOString();
 
-  const today = db.prepare(`
-    SELECT
-      COUNT(*) as total,
-      SUM(CASE WHEN verdict='bot' THEN 1 ELSE 0 END) as blocked,
-      SUM(CASE WHEN verdict='human' THEN 1 ELSE 0 END) as passed,
-      SUM(CASE WHEN verdict='suspicious' THEN 1 ELSE 0 END) as suspicious,
-      AVG(score) as avg_score
-    FROM submissions WHERE site_id = ? AND timestamp > ?
-  `).get(site.public_key, since24h);
+    const today = db.prepare(`
+      SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN verdict='bot' THEN 1 ELSE 0 END) as blocked,
+        SUM(CASE WHEN verdict='human' THEN 1 ELSE 0 END) as passed,
+        SUM(CASE WHEN verdict='suspicious' THEN 1 ELSE 0 END) as suspicious,
+        AVG(score) as avg_score
+      FROM submissions WHERE site_id = ? AND timestamp > ?
+    `).get(site.public_key, since24h);
 
-  const week = db.prepare(`
-    SELECT
-      strftime('%Y-%m-%d', timestamp) as date,
-      COUNT(*) as total,
-      SUM(CASE WHEN verdict='bot' THEN 1 ELSE 0 END) as blocked
-    FROM submissions WHERE site_id = ? AND timestamp > ?
-    GROUP BY date ORDER BY date DESC
-  `).all(site.public_key, since7d);
+    const week = db.prepare(`
+      SELECT
+        strftime('%Y-%m-%d', timestamp) as date,
+        COUNT(*) as total,
+        SUM(CASE WHEN verdict='bot' THEN 1 ELSE 0 END) as blocked
+      FROM submissions WHERE site_id = ? AND timestamp > ?
+      GROUP BY date ORDER BY date DESC
+    `).all(site.public_key, since7d);
 
-  const threats = db.prepare(`
-    SELECT
-      SUM(CASE WHEN honeypot_triggered=1 THEN 1 ELSE 0 END) as honeypot,
-      SUM(CASE WHEN spam_detected=1 THEN 1 ELSE 0 END) as spam,
-      SUM(CASE WHEN verdict='bot' THEN 1 ELSE 0 END) as bot_submissions
-    FROM submissions WHERE site_id = ? AND timestamp > ?
-  `).get(site.public_key, since24h);
+    const threats = db.prepare(`
+      SELECT
+        SUM(CASE WHEN honeypot_triggered=1 THEN 1 ELSE 0 END) as honeypot,
+        SUM(CASE WHEN spam_detected=1 THEN 1 ELSE 0 END) as spam,
+        SUM(CASE WHEN verdict='bot' THEN 1 ELSE 0 END) as bot_submissions
+      FROM submissions WHERE site_id = ? AND timestamp > ?
+    `).get(site.public_key, since24h);
 
-  res.json({
-    site: {
-      domain: site.domain,
-      plan: site.plan,
-      monthly_requests: site.monthly_requests,
-      monthly_limit: 50000,
-    },
-    today,
-    week,
-    threats,
-  });
+    res.json({
+      site: {
+        domain: site.domain,
+        plan: site.plan,
+        monthly_requests: site.monthly_requests,
+        monthly_limit: 50000,
+      },
+      today,
+      week,
+      threats,
+    });
+  } catch(err) {
+    console.error('[/api/analytics/overview]', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // GET /api/analytics/patterns — learned bot patterns
