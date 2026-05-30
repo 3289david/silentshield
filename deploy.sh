@@ -1,9 +1,9 @@
-#!/bin/bash
+﻿#!/bin/bash
 # SilentShield VPS deployment script
 # Run once on a fresh Ubuntu 22.04 VPS as root
 set -e
 
-echo "🛡️  SilentShield VPS Setup"
+echo "?썳截? SilentShield VPS Setup"
 echo "=========================="
 
 # Install Node.js 20
@@ -39,7 +39,7 @@ RATE_LIMIT_WINDOW_MS=60000
 RATE_LIMIT_MAX=200
 EOF
   mkdir -p /opt/silentshield/data
-  echo "✅ .env created — check /opt/silentshield/server/.env for ADMIN_SECRET"
+  echo "??.env created ??check /opt/silentshield/server/.env for ADMIN_SECRET"
 fi
 
 # Start with PM2
@@ -50,7 +50,7 @@ pm2 save
 pm2 startup
 
 echo ""
-echo "✅ SilentShield is running!"
+echo "??SilentShield is running!"
 echo "   URL: http://$(curl -s ifconfig.me):3000"
 echo ""
 echo "Next steps:"
@@ -58,3 +58,4 @@ echo "  1. Point your domain to this server"
 echo "  2. Install nginx: apt install nginx"
 echo "  3. Set up SSL: certbot --nginx -d yourdomain.com"
 echo "  4. Configure nginx to proxy port 3000"
+
