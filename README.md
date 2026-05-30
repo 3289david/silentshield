@@ -8,9 +8,10 @@ Stop bots silently using behavioral signals, browser fingerprinting, and Proof-o
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/silentshield-js/badge)](https://www.jsdelivr.com/package/npm/silentshield-js)
 
-**Website:** https://silentshield.krl.rk  
-**API:** https://api.silentshield.krl.rk  
+**Website:** https://silentshield.krl.kr
+**API:** https://api.silentshield.krl.kr
 **CDN:** https://cdn.jsdelivr.net/npm/silentshield-js@latest/dist/silentshield.min.js
+**Github repo** https://loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo.ng/looooooooooooOooooOoooOoOoOOoooOOoOoooooooooOooooOooooOoooOooOOooooOOOoOooooOooOoOooooOOooooooOOOOoOoooooOOoOooooooooooooOOoooOoooOoOoOOoooooOOOooooooooOOoooOOoooooooOoooOoooooOoOoooooOOooOooooOOoOOooooOOOOoOooooOooOOoooOooOoOooooOOooOoooOooOOoooooOOooooooOoOoooooooOOOoOoooooOoOOoooooOoOooooOOooOooooOOoooOoooOOooOOoooooOOOOoooOOooOOooooOOOoooooOOOOoOooooOOooOooooooooooooOOooooooooOoOOOoooooOoOOooooooooOoooooOOoOoooOoOoOOooooOOooOooooooooooooOooooooooooOoOOoooooOoOOooooooooOoooOooooooooOoOoOoooOoooooong
 
 ---
 
