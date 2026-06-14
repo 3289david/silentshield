@@ -1,4 +1,4 @@
-﻿# ?썳截?SilentShield
+﻿# SilentShield
 
 **Invisible bot protection ??no CAPTCHAs, no friction, no puzzles. Free forever.**
 
