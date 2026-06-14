@@ -3,7 +3,7 @@
 # Run once on a fresh Ubuntu 22.04 VPS as root
 set -e
 
-echo "?썳截? SilentShield VPS Setup"
+echo "?? SilentShield VPS Setup"
 echo "=========================="
 
 # Install Node.js 20
@@ -16,7 +16,7 @@ npm install -g pm2
 # Clone repo
 mkdir -p /opt/silentshield
 cd /opt/silentshield
-git clone https://github.com/YOUR_USERNAME/silentshield . 2>/dev/null || git pull
+git clone https://github.com/3289david/silentshield . 2>/dev/null || git pull
 
 # Build SDK
 cd sdk && npm install && node build.js
